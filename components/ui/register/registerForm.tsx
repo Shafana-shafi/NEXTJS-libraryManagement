@@ -113,10 +113,11 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                   autoComplete="new-password"
                   required
                   placeholder="••••••••"
-                  value={formData.password}
+                  value={formData.password ?? ""} // Use '' when formData.password is null
                   onChange={handleChange}
                   className="bg-gray-800 text-white border-gray-600"
                 />
+
                 <Button
                   type="button"
                   variant="ghost"

@@ -21,6 +21,7 @@ const initialState: FormState = {
   pages: 0,
   totalCopies: 0,
   availableCopies: 0,
+  price: 0,
 };
 
 function formAction(bookid: number) {
@@ -40,6 +41,7 @@ function formAction(bookid: number) {
         pages: parseInt(bookData.pages as string, 10),
         totalCopies: parseInt(bookData.totalCopies as string, 10),
         availableCopies: parseInt(bookData.availableCopies as string, 10),
+        price: parseInt(bookData.price as string, 10),
       };
 
       const response = await update(bookid, updatedBook);
@@ -78,6 +80,7 @@ export function EditBookForm({
     pages: book.pages,
     totalCopies: book.totalCopies,
     availableCopies: book.availableCopies,
+    price: book.price,
   });
 
   const [message, setMessage] = useState<string | null>(null);
