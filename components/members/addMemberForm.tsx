@@ -64,7 +64,7 @@ export default function AddMemberForm() {
     });
     if (result && !result.success) {
       if (result.errors) {
-        setServerErrors(result.errors);
+        throw errors;
       } else {
         toast({
           variant: "destructive",

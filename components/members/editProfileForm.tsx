@@ -12,6 +12,7 @@ import { iMemberBase } from "@/models/member.model";
 import { memberSchema } from "@/validations/validations";
 import { handleUpdateMember } from "@/actions/addMemberActions";
 import { useToast } from "@/components/ui/use-toast";
+import { error } from "console";
 
 export interface ProfileData {
   id: number;
@@ -61,7 +62,7 @@ export default function EditProfileForm({ profile }: EditProfileFormProps) {
         // Update the profile data here if necessary
       } else {
         if (result && result.error) {
-          setServerErrors(result.error);
+          throw error;
         }
         toast({
           title: "Error",

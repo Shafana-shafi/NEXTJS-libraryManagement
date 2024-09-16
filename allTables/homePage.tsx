@@ -48,11 +48,7 @@ export default function LandingPageClient() {
             </p>
             <div className="flex justify-center space-x-4">
               <Link href="/login">
-                <Button
-                  variant="solid"
-                  size="lg"
-                  className="bg-gray-800 hover:bg-gray-600"
-                >
+                <Button size="lg" className="bg-gray-800 hover:bg-gray-600">
                   <LogIn className="mr-2 h-5 w-5" />
                   {t("loginRegister")}
                 </Button>

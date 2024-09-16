@@ -34,7 +34,13 @@ export default async function Page({
   if (session?.user?.email) {
     try {
       const user = await getUserByEmail(session.user.email);
-      userRole = user.role;
+      let userRole: string | undefined;
+      if (user) {
+        userRole = user.role;
+      } else {
+        // Handle the case when user is undefined
+        userRole = "user"; // or some other default value
+      }
     } catch (error) {
       console.error("Error fetching user role:", error);
     }

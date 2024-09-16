@@ -1,7 +1,6 @@
 "use server";
 import mysql2 from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
-import { AppEnvs } from "../read-env";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../lib/authOptions";
