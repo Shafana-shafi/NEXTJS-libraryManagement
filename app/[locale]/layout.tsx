@@ -1,21 +1,20 @@
 "use client";
 import "../globals.css";
 import { SessionProvider } from "next-auth/react";
-import { Session } from "next-auth";
 import { Toaster } from "@/components/ui/toaster";
 
 interface Props {
-  session: Session | null;
   children: React.ReactNode;
 }
 
-const RootLayout: React.FC<Props> = ({ children, session }) => {
+const RootLayout: React.FC<Props> = ({ children }) => {
   return (
     <html lang="en">
       <head />
       <body>
         <main>
-          <SessionProvider session={session}>{children}</SessionProvider>
+          <SessionProvider>{children}</SessionProvider>{" "}
+          {/* No need to pass session */}
           <Toaster />
         </main>
       </body>
