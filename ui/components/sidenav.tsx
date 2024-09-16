@@ -16,65 +16,56 @@ const adminLinks = [
   {
     name: "Books",
     href: "/adminBooks",
-    icon: <Book className="w-5 h-5" />,
+    icon: <Book className="w-5 h-5 text-rose-400" />,
   },
   {
     name: "Transactions",
     href: "/transactions",
-    icon: <ArrowLeftRight className="w-5 h-5" />,
+    icon: <ArrowLeftRight className="w-5 h-5 text-rose-400" />,
   },
   {
     name: "Requests",
     href: "/requests",
-    icon: <GitPullRequestCreate className="w-5 h-5" />,
+    icon: <GitPullRequestCreate className="w-5 h-5 text-rose-400" />,
   },
   {
     name: "Members",
     href: "/adminBooks/members",
-    icon: <UsersIcon className="w-5 h-5" />,
+    icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
   },
   {
     name: "Add New Admin",
     href: "/adminBooks/addMember",
-    icon: <UserPlusIcon className="w-5 h-5" />,
+    icon: <UserPlusIcon className="w-5 h-5 text-rose-400" />,
   },
 ];
 
 const userLinks = [
   {
-    name: "Profile",
-    href: "/profile",
-    icon: <User className="w-5 h-5" />,
-  },
-  { name: "Books", href: "/userBooks", icon: <Book className="w-5 h-5" /> },
-  {
-    name: "My Transactions",
-    href: "/transactions",
-    icon: <ArrowLeftRight className="w-5 h-5" />,
+    name: "Books",
+    href: "/userBooks",
+    icon: <Book className="w-5 h-5 text-rose-400" />,
   },
   {
     name: "My Requests",
     href: "/requests",
-    icon: <GitPullRequestCreate className="w-5 h-5" />,
+    icon: <GitPullRequestCreate className="w-5 h-5 text-rose-400" />,
   },
 ];
 
 export default async function SideNav() {
   const session = await getServerSession(authOptions);
-  console.log(session);
   let userRole = session?.user.role;
 
   const links = userRole === "admin" ? adminLinks : userLinks;
 
   return (
-    <div className="flex h-full flex-col bg-gray-100 w-64 py-4 px-3">
-      <div className="flex grow flex-col justify-between space-y-4 w-full">
-        <div className="space-y-2">
-          <NavLinks links={links} />
-        </div>
-        <div className="hidden h-auto w-full grow rounded-md bg-gray-200 md:block"></div>
-        <LogOutButton />
+    <div className="flex h-full flex-col bg-gray-50 w-64 py-4 px-3 border border-rose-200 rounded-lg">
+      <div className="space-y-4">
+        <NavLinks links={links} />
+        <LogOutButton /> {/* Moved LogOutButton right after the NavLinks */}
       </div>
+      <div className="hidden h-auto w-full grow rounded-md bg-rose-50 md:block"></div>
     </div>
   );
 }

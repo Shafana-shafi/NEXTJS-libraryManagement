@@ -49,6 +49,9 @@ type FilteredRequest = {
   status: string;
   issuedDate: Date | null;
   returnDate: Date | null;
+  memberFirstName: string;
+  memberLastName: string;
+  bookTitle: string;
 };
 export async function fetchAllRequests(
   query: string,
@@ -67,11 +70,29 @@ export async function fetchAllRequests(
   const limit = 6;
 
   try {
-    let baseQuery: MySqlSelect = db.select().from(requests).$dynamic();
+    let baseQuery = db
+      .select({
+        id: requests.id,
+        memberId: requests.memberId,
+        bookId: requests.bookId,
+        requestDate: requests.requestDate,
+        issuedDate: requests.issuedDate,
+        returnDate: requests.returnDate,
+        status: requests.status,
+        memberFirstName: members.firstName, // Join member first name
+        memberLastName: members.lastName, // Join member last name
+        bookTitle: books.title, // Join book title
+      })
+      .from(requests)
+      .innerJoin(members, eq(requests.memberId, members.id)) // Join with members table
+      .innerJoin(books, eq(requests.bookId, books.id)) // Join with books table
+      .$dynamic();
 
     const conditions = [
       or(
-        like(requests.memberId, `%${query}%`),
+        like(members.firstName, `%${query}%`),
+        like(members.lastName, `%${query}%`),
+        like(books.title, `%${query}%`),
         like(requests.bookId, `%${query}%`),
         like(requests.requestDate, `%${query}%`),
         like(requests.issuedDate, `%${query}%`),
@@ -158,7 +179,7 @@ export async function fetchAllRequests(
       .offset(offset)
       .orderBy(requests.status);
 
-    // Ensure the return type matches the FilteredRequest[]
+    // Ensure the return type matches the FilteredRequest[] and includes the joined fields
     return allRequests as FilteredRequest[];
   } catch (error) {
     console.error("Error fetching requests:", error);
@@ -169,29 +190,137 @@ export async function fetchAllRequests(
 export async function fetchFilteredUserRequests(
   memberId: number,
   query: string,
-  currentPage: number
+  currentPage: number,
+  filters: {
+    status?: string[];
+    requestDate?: Date;
+    issuedDate?: Date;
+    returnedDate?: Date;
+    requestDateRange?: string;
+    issuedDateRange?: string;
+    returnedDateRange?: string;
+  }
 ) {
   const offset = (currentPage - 1) * 6;
+
   try {
     const allRequests = await db.transaction(async (transaction) => {
-      // Perform the search and pagination
-      const filteredRequests = await transaction
-        .select()
+      let baseQuery = transaction
+        .select({
+          id: requests.id,
+          memberId: requests.memberId,
+          bookId: requests.bookId,
+          requestDate: requests.requestDate,
+          issuedDate: requests.issuedDate,
+          returnDate: requests.returnDate,
+          status: requests.status,
+          memberFirstName: members.firstName, // Join member first name
+          memberLastName: members.lastName, // Join member last name
+          bookTitle: books.title, // Join book title
+        })
         .from(requests)
-        .where(
-          and(
-            eq(requests.memberId, memberId),
-            or(
-              like(requests.memberId, `%${query}%`),
-              like(requests.bookId, `%${query}%`),
-              like(requests.requestDate, `%${query}%`)
-            )
-          )
-        )
+        .innerJoin(members, eq(requests.memberId, members.id)) // Join with members table
+        .innerJoin(books, eq(requests.bookId, books.id)) // Join with books table
+        .$dynamic();
+
+      const conditions = [
+        eq(requests.memberId, memberId), // Filter by the given memberId
+        or(
+          like(members.firstName, `%${query}%`),
+          like(members.lastName, `%${query}%`),
+          like(books.title, `%${query}%`),
+          like(requests.bookId, `%${query}%`),
+          like(requests.requestDate, `%${query}%`),
+          like(requests.issuedDate, `%${query}%`),
+          like(requests.returnDate, `%${query}%`),
+          like(requests.status, `%${query}%`)
+        ),
+      ];
+
+      // Apply status filter
+      if (filters.status && filters.status.length > 0) {
+        conditions.push(inArray(requests.status, filters.status));
+      }
+
+      // Apply date filters
+      if (filters.requestDate) {
+        conditions.push(eq(requests.requestDate, filters.requestDate));
+      }
+      if (filters.issuedDate) {
+        conditions.push(eq(requests.issuedDate, filters.issuedDate));
+      }
+      if (filters.returnedDate) {
+        conditions.push(eq(requests.returnDate, filters.returnedDate));
+      }
+
+      // Apply date range filters
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const lastWeek = new Date(today);
+      lastWeek.setDate(lastWeek.getDate() - 7);
+
+      if (filters.requestDateRange) {
+        switch (filters.requestDateRange) {
+          case "today":
+            conditions.push(
+              sql`DATE(${requests.requestDate}) = DATE(${today})`
+            );
+            break;
+          case "yesterday":
+            conditions.push(
+              sql`DATE(${requests.requestDate}) = DATE(${yesterday})`
+            );
+            break;
+          case "past_week":
+            conditions.push(sql`${requests.requestDate} >= ${lastWeek}`);
+            break;
+        }
+      }
+
+      if (filters.issuedDateRange) {
+        switch (filters.issuedDateRange) {
+          case "today":
+            conditions.push(sql`DATE(${requests.issuedDate}) = DATE(${today})`);
+            break;
+          case "yesterday":
+            conditions.push(
+              sql`DATE(${requests.issuedDate}) = DATE(${yesterday})`
+            );
+            break;
+          case "past_week":
+            conditions.push(sql`${requests.issuedDate} >= ${lastWeek}`);
+            break;
+        }
+      }
+
+      if (filters.returnedDateRange) {
+        switch (filters.returnedDateRange) {
+          case "today":
+            conditions.push(sql`DATE(${requests.returnDate}) = DATE(${today})`);
+            break;
+          case "yesterday":
+            conditions.push(
+              sql`DATE(${requests.returnDate}) = DATE(${yesterday})`
+            );
+            break;
+          case "past_week":
+            conditions.push(sql`${requests.returnDate} >= ${lastWeek}`);
+            break;
+        }
+      }
+
+      // Apply the conditions to the query
+      baseQuery = baseQuery.where(and(...conditions));
+
+      const filteredRequests = await baseQuery
         .limit(6)
-        .offset(offset);
+        .offset(offset)
+        .orderBy(requests.status);
+
       return filteredRequests;
     });
+
     return allRequests;
   } catch (error) {
     console.error("Error fetching user requests:", error);

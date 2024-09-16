@@ -15,7 +15,7 @@ export default async function Page({
   searchParams?: {
     query?: string;
     page?: string;
-    genre?: string; // Accept genre from URL params
+    genre?: string;
   };
 }) {
   const query = searchParams?.query || "";
@@ -23,15 +23,16 @@ export default async function Page({
   const selectedGenre = searchParams?.genre || "all";
   const genres = await getDistinctGenres();
   const totalPages = await fetchPaginatedBooks(query, selectedGenre);
+
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col bg-rose-50">
       <NavBar />
       <div className="flex flex-grow">
         <SideNav />
 
         <div className="relative flex-grow overflow-hidden flex flex-col">
           {/* Center the search bar */}
-          <div className="flex justify-center z-10 bg-background pt-3 mb-3 gap-3">
+          <div className="flex justify-center z-10 bg-rose-100 pt-6 pb-4 mb-3 gap-3 shadow-md">
             <Search placeholder="Search Books..." />
             <GenreDropdown genres={genres} />
           </div>
@@ -39,7 +40,7 @@ export default async function Page({
           {/* Main content with books table */}
           <div className="flex-grow px-4 overflow-auto">
             {totalPages === 0 ? (
-              <div className="text-center text-gray-500 mt-10">
+              <div className="text-center text-rose-600 mt-10 text-lg">
                 No books found for the search query.
               </div>
             ) : (
@@ -47,17 +48,19 @@ export default async function Page({
                 key={query + currentPage + selectedGenre}
                 fallback={<TableSkeleton />}
               >
-                <Books
-                  query={query}
-                  currentPage={currentPage}
-                  genre={selectedGenre}
-                />
+                <div className="bg-white rounded-lg shadow-md mb-4">
+                  <Books
+                    query={query}
+                    currentPage={currentPage}
+                    genre={selectedGenre}
+                  />
+                </div>
               </Suspense>
             )}
           </div>
 
           {/* Sticky pagination at the bottom */}
-          <div className="sticky bottom-0 left-0 right-0 p-4 bg-white flex justify-center">
+          <div className="sticky bottom-0 left-0 right-0 p-4 bg-rose-100 flex justify-center shadow-md">
             {totalPages > 0 && <Pagination totalPages={totalPages} />}
           </div>
         </div>

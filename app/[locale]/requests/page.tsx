@@ -60,9 +60,7 @@ export default async function RequestsPage({
 
   const requests = isAdmin
     ? await fetchAllRequests(query, currentPage, filters)
-    : await fetchFilteredUserRequests(user.id, query, currentPage);
-
-  console.log(requests);
+    : await fetchFilteredUserRequests(user.id, query, currentPage, filters);
 
   const today = new Date();
 
@@ -97,7 +95,7 @@ export default async function RequestsPage({
   }
 
   return (
-    <div className="flex h-screen flex-col bg-gray-100">
+    <div className="flex h-screen flex-col bg-rose-50">
       <NavBar />
       <div className="flex flex-grow">
         <SideNav />

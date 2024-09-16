@@ -64,7 +64,7 @@ export async function completeProfile(formData: FormData) {
 
 export async function login(formData: FormData) {}
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 8;
 export async function fetchFilteredBooks(
   query: string,
   currentPage: number,

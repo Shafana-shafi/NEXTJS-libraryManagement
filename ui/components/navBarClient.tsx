@@ -19,14 +19,14 @@ export default function NavBarClient({ userImage }: NavBarClientProps) {
 
   return (
     <nav className="bg-white border-b border-gray-200 border-b-transparent">
-      <div className="flex justify-between items-center h-16 px-4">
+      <div className="flex justify-between items-center h-16 px-4 py-3">
         {/* Logo or Home Link */}
         <div className="flex-shrink-0">
           <Link
             href="/"
-            className="text-xl font-bold text-black flex items-center"
+            className="text-xl font-bold text-rose-800 flex items-center"
           >
-            <BookOpen className="w-8 h-8 mr-2 text-black" />
+            <BookOpen className="w-8 h-8 mr-2 text-rose-800" />
             SHIFAS LIBRARY
           </Link>
         </div>
@@ -37,19 +37,19 @@ export default function NavBarClient({ userImage }: NavBarClientProps) {
           <div className="hidden md:flex space-x-6 mr-6">
             <Link
               href="/dashboard"
-              className="text-black hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+              className="text-rose-800 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
             >
               Dashboard
             </Link>
             <Link
               href="/about"
-              className="text-black hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+              className="text-rose-800 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
             >
               About
             </Link>
             <Link
               href="/contact"
-              className="text-black hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+              className="text-rose-800 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
             >
               Contact
             </Link>
@@ -59,7 +59,7 @@ export default function NavBarClient({ userImage }: NavBarClientProps) {
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center text-black hover:text-gray-600 focus:outline-none transition duration-150 ease-in-out"
+              className="flex items-center text-rose-800 hover:text-gray-600 focus:outline-none transition duration-150 ease-in-out"
             >
               <Image
                 src={userImage}
@@ -73,7 +73,7 @@ export default function NavBarClient({ userImage }: NavBarClientProps) {
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                 <button
                   onClick={handleSignOut}
-                  className="block w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100 transition duration-150 ease-in-out"
+                  className="block w-full text-left px-4 py-2 text-sm text-rose-800 hover:bg-gray-100 transition duration-150 ease-in-out"
                 >
                   Sign Out
                 </button>

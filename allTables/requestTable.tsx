@@ -1,5 +1,3 @@
-// File: allTables/requestTable.tsx
-
 import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "next-auth/next";
 import {
@@ -12,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { RequestActionButtons } from "./requestActionButtons";
 import { authOptions } from "@/lib/authOptions";
+import { strict } from "assert";
 
 export interface Request {
   id: number;
@@ -21,6 +20,9 @@ export interface Request {
   requestDate: Date;
   returnDate: Date | null;
   status: string;
+  memberFirstName: string;
+  memberLastName: string;
+  bookTitle: string;
 }
 
 interface RequestsTableProps {
@@ -43,36 +45,50 @@ export default async function RequestsTable({
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
-        <div className="rounded-lg bg-white shadow-md p-6 border border-gray-200">
+        <div className="rounded-lg bg-white shadow-md p-6 border border-rose-200">
+          {" "}
+          {/* Soft rose border */}
           {/* Mobile view for requests */}
           <div className="md:hidden space-y-4">
             {requests.map((request) => (
               <div
                 key={request.id}
-                className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm"
+                className="bg-rose-50 p-4 rounded-lg border border-rose-100 shadow-sm"
               >
-                <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-2">
+                <div className="flex items-center justify-between border-b border-rose-200 pb-2 mb-2">
+                  {" "}
+                  {/* Subtle rose for dividers */}
                   {isAdmin && (
-                    <p className="font-medium text-gray-700">
-                      Member ID: {request.memberId}
+                    <p className="font-medium text-rose-600">
+                      {" "}
+                      {/* Rose for admin labels */}
+                      Member Name:{request.memberFirstName}
+                      {request.memberLastName}
                     </p>
                   )}
                   <p className="font-medium text-gray-700">
-                    Book ID: {request.bookId}
+                    Book Name: {request.bookTitle}
                   </p>
-                  <Badge variant="outline">{request.status}</Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-rose-400 border-rose-400"
+                  >
+                    {" "}
+                    {/* Rose for status */}
+                    {request.status}
+                  </Badge>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-rose-400">
                   Request Date:{" "}
                   {new Date(request.requestDate).toLocaleDateString()}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-rose-400">
                   Issued Date:{" "}
                   {request.issuedDate
                     ? new Date(request.issuedDate).toLocaleDateString()
                     : "-"}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-rose-400">
                   Return Date:{" "}
                   {request.returnDate
                     ? new Date(request.returnDate).toLocaleDateString()
@@ -95,44 +111,56 @@ export default async function RequestsTable({
               </div>
             ))}
           </div>
-
           {/* Desktop view for requests */}
           <div className="hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
-                  {isAdmin && <TableHead>Member ID</TableHead>}
-                  <TableHead>Book ID</TableHead>
-                  <TableHead>Request Date</TableHead>
-                  <TableHead>Issued Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Return Date</TableHead>
-                  {isAdmin && <TableHead>Actions</TableHead>}
+                  {isAdmin && (
+                    <TableHead className="text-rose-600">Member Name</TableHead>
+                  )}{" "}
+                  {/* Rose for table headers */}
+                  <TableHead className="text-rose-600">Book Name</TableHead>
+                  <TableHead className="text-rose-600">Request Date</TableHead>
+                  <TableHead className="text-rose-600">Issued Date</TableHead>
+                  <TableHead className="text-rose-600">Status</TableHead>
+                  <TableHead className="text-rose-600">Return Date</TableHead>
+                  {isAdmin && (
+                    <TableHead className="text-rose-600">Actions</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {requests.map((request) => (
-                  <TableRow key={request.id}>
+                  <TableRow key={request.id} className="hover:bg-rose-50">
+                    {" "}
+                    {/* Soft hover effect */}
                     {isAdmin && (
-                      <TableCell className="font-medium">
-                        {request.memberId}
+                      <TableCell className="font-medium text-rose-400">
+                        {request.memberFirstName}
+                        {request.memberLastName}
                       </TableCell>
                     )}
-                    <TableCell className="font-medium">
-                      {request.bookId}
+                    <TableCell className="font-medium text-rose-400">
+                      {request.bookTitle}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium text-rose-400">
                       {new Date(request.requestDate).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium text-rose-400">
                       {request.issuedDate
                         ? new Date(request.issuedDate).toLocaleDateString()
                         : "NULL"}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{request.status}</Badge>
+                    <TableCell className="font-medium text-rose-400">
+                      <Badge
+                        variant="outline"
+                        className="text-rose-400 border-rose-400"
+                      >
+                        {request.status}
+                      </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium text-rose-400">
                       {request.returnDate
                         ? new Date(request.returnDate).toLocaleDateString()
                         : "NULL"}
@@ -156,7 +184,6 @@ export default async function RequestsTable({
               </TableBody>
             </Table>
           </div>
-
           {/* No requests message */}
           {requests.length === 0 && (
             <p className="text-center text-gray-500 mt-4">
