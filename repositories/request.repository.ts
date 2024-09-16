@@ -8,8 +8,6 @@ import { authOptions } from "../lib/authOptions";
 import { books, members, requests, transactions } from "@/db/schema";
 import { eq, and, like, or, count, isNotNull, sql, inArray } from "drizzle-orm";
 import chalk from "chalk";
-import { redirect } from "next/navigation";
-import bcrypt from "bcrypt";
 import { iBook, iBookB, iBookBase } from "@/models/book.model";
 import { iRequest, iRequestBase } from "@/models/request.model";
 import { MySqlSelect } from "drizzle-orm/mysql-core";

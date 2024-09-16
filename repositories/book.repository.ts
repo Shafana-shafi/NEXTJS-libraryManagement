@@ -10,7 +10,7 @@ import { books, members, transactions } from "@/db/schema";
 import { eq, and, like, or, count } from "drizzle-orm";
 import chalk from "chalk";
 import { redirect } from "next/navigation";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { iBook, iBookB, iBookBase } from "@/models/book.model";
 
 const poolConnection = mysql2.createPool({
