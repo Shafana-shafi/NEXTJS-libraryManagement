@@ -2,7 +2,6 @@
 
 import mysql2 from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
-import { AppEnvs } from "../read-env";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./authOptions";
@@ -11,7 +10,7 @@ import { eq, and, like, or, count, isNotNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 const poolConnection = mysql2.createPool({
-  uri: AppEnvs.DATABASE_URL,
+  uri: process.env.DATABASE_URL,
 });
 const db = drizzle(poolConnection);
 
