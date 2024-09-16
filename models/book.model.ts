@@ -10,9 +10,11 @@ export interface iBookBase {
 export interface iBook extends iBookBase {
   id: number;
   availableCopies: number;
+  price: number;
 }
 
 export interface iBookB extends iBookBase {
   id: number;
   availableCopies: number;
+  price: number;
 }

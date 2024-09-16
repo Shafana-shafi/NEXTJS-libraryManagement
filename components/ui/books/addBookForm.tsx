@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 type iBook = z.infer<typeof bookSchema> & {
   id: number;
   availableCopies: number;
+  price: number;
 };
 
 export default function AddBookForm() {

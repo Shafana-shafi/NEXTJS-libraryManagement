@@ -1,3 +1,5 @@
+// File: app/requests/page.tsx
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { getUserByEmail } from "@/repositories/user.repository";
@@ -12,7 +14,7 @@ import {
   updateAvailableBookCopiesOnIssue,
   updateAvailableBookCopiesOnReturn,
 } from "@/repositories/book.repository";
-import RequestsTable from "@/allTables/requestTable";
+import RequestsTable, { Request } from "@/allTables/requestTable";
 import { revalidatePath } from "next/cache";
 import NavBar from "@/ui/components/navBar";
 import SideNav from "@/ui/components/sidenav";

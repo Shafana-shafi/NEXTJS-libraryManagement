@@ -2,7 +2,6 @@
 
 import mysql2 from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
-import { AppEnvs } from "../read-env";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../lib/authOptions";
@@ -152,7 +151,7 @@ export async function fetchFilteredTransactions(
   }
 }
 
-async function checkUserRole(session) {
+async function checkUserRole(session: any) {
   if (!session || !session.user || !session.user.membershipStatus) {
     return null; // Return null if the user is not a basic member
   }

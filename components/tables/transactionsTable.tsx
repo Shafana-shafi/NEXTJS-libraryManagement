@@ -52,8 +52,8 @@ export default async function TransactionsTable({
         }`.trim();
         bookTitle = transaction.bookTitle;
       } else if ("bookId" in transaction && "memberId" in transaction) {
-        const member = await getUserById(transaction.meberId);
-        const book = await getBookById(transaction.bookId);
+        const member = await getUserById(9);
+        const book = await getBookById(9);
         memberName = `${member?.firstName || ""} ${
           member?.lastName || ""
         }`.trim();

@@ -41,6 +41,15 @@ export async function createRequest(
   }
 }
 
+type FilteredRequest = {
+  id: number;
+  memberId: number;
+  bookId: number;
+  requestDate: Date;
+  status: string;
+  issuedDate: Date | null;
+  returnDate: Date | null;
+};
 export async function fetchAllRequests(
   query: string,
   currentPage: number,
@@ -53,7 +62,7 @@ export async function fetchAllRequests(
     issuedDateRange?: string;
     returnedDateRange?: string;
   }
-) {
+): Promise<FilteredRequest[]> {
   const offset = (currentPage - 1) * 6;
   const limit = 6;
 
@@ -149,7 +158,8 @@ export async function fetchAllRequests(
       .offset(offset)
       .orderBy(requests.status);
 
-    return allRequests;
+    // Ensure the return type matches the FilteredRequest[]
+    return allRequests as FilteredRequest[];
   } catch (error) {
     console.error("Error fetching requests:", error);
     throw error;

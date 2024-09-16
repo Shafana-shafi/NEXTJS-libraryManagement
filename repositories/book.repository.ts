@@ -2,7 +2,6 @@
 
 import mysql2 from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
-import { AppEnvs } from "../read-env";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../lib/authOptions";
@@ -62,6 +61,7 @@ export async function createBook(book: iBook): Promise<iBookB | undefined> {
       const newBookData: iBookB = {
         ...book,
         availableCopies: book.totalCopies,
+        price: 0,
       };
 
       await db.insert(books).values(newBookData).execute();

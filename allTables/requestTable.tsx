@@ -1,3 +1,5 @@
+// File: allTables/requestTable.tsx
+
 import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "next-auth/next";
 import {
@@ -42,10 +44,6 @@ export default async function RequestsTable({
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-white shadow-md p-6 border border-gray-200">
-          {/* <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-            {isAdmin ? "Book Requests" : "Your Book Requests"}
-          </h2> */}
-
           {/* Mobile view for requests */}
           <div className="md:hidden space-y-4">
             {requests.map((request) => (
@@ -90,7 +88,7 @@ export default async function RequestsTable({
                       onAccept={onAccept}
                       onDecline={onDecline}
                       onReturn={onReturn}
-                      returnDate={request.requestDate}
+                      returnDate={request.returnDate}
                     />
                   </div>
                 )}
