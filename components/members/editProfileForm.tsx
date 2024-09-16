@@ -62,7 +62,7 @@ export default function EditProfileForm({ profile }: EditProfileFormProps) {
         // Update the profile data here if necessary
       } else {
         if (result && result.error) {
-          throw error;
+          throw new Error();
         }
         toast({
           title: "Error",
