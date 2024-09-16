@@ -129,7 +129,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "https://nextjs-library-management-f7kq.vercel.app/en/login",
+    signIn: "/en/login",
     error: "/auth/error",
   },
   session: {
