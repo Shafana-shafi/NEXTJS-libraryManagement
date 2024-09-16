@@ -19,7 +19,7 @@ import {
 } from "@/models/member.model";
 
 const poolConnection = mysql2.createPool({
-  uri: AppEnvs.DATABASE_URL,
+  uri: process.env.DATABASE_URL,
 });
 const db = drizzle(poolConnection);
 

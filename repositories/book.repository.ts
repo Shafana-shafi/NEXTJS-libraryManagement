@@ -14,7 +14,7 @@ import bcrypt from "bcryptjs";
 import { iBook, iBookB, iBookBase } from "@/models/book.model";
 
 const poolConnection = mysql2.createPool({
-  uri: AppEnvs.DATABASE_URL,
+  uri: process.env.DATABASE_URL,
 });
 const db = drizzle(poolConnection);
 

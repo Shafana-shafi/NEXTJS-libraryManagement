@@ -13,7 +13,7 @@ import { iRequest, iRequestBase } from "@/models/request.model";
 import { MySqlSelect } from "drizzle-orm/mysql-core";
 
 const poolConnection = mysql2.createPool({
-  uri: AppEnvs.DATABASE_URL,
+  uri: process.env.DATABASE_URL,
 });
 const db = drizzle(poolConnection);
 
