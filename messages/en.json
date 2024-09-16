@@ -1,0 +1,15 @@
+{
+    "LandingPageClient": {
+        "libraryName": "Shifa's Library",
+        "features": "Features",
+        "about": "About",
+        "contact": "Contact",
+        "welcome": "Welcome to Shifa's Library",
+        "description": "Whether you're a librarian or a member, access all library services with ease.",
+        "loginRegister": "Login/Register",
+        "copyright": "© {year} Shifa's Library. All rights reserved.",
+        "termsOfService": "Terms of Service",
+        "privacy": "Privacy",
+        "IndexPage": "Index Page Content"
+    }
+}

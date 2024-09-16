@@ -1,0 +1,15 @@
+{
+    "LandingPageClient": {
+        "libraryName": "ಲೈಬ್ರರಿ",
+        "features": "ವೈಶಿಷ್ಟ್ಯಗಳು",
+        "about": "ಬಗ್ಗೆ",
+        "contact": "ಸಂಪರ್ಕ",
+        "welcome": "ಸ್ವಾಗತ",
+        "description": "ನೀವು ಹುಡುಕುತ್ತಿರುವ ಪುಸ್ತಕಗಳ ಮನೆ",
+        "loginRegister": "ಲಾಗಿನ್ / ನೋಂದಣಿ",
+        "termsOfService": "ಸೇವಾ ಷರತ್ತುಗಳು",
+        "privacy": "ಗೌಪ್ಯತೆ ನೀತಿ",
+        "copyright": "© {year} ಹಕ್ಕುಗಳುสง...",
+        "IndexPage": "Index Page Content"
+    }
+}
