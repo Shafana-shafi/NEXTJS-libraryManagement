@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./authOptions";
 import { books, members, transactions } from "@/db/schema";
 import { eq, and, like, or, count, isNotNull } from "drizzle-orm";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const poolConnection = mysql2.createPool({
   uri: AppEnvs.DATABASE_URL,
