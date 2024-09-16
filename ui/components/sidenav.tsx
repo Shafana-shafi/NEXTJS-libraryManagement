@@ -14,11 +14,6 @@ import {
 
 const adminLinks = [
   {
-    name: "Profile",
-    href: "/profile",
-    icon: <User className="w-5 h-5" />,
-  },
-  {
     name: "Books",
     href: "/adminBooks",
     icon: <Book className="w-5 h-5" />,

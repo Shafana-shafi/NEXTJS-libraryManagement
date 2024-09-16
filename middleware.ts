@@ -13,7 +13,6 @@ const protectedRoutes = [
   "/requests",
   "/adminBooks/members",
   "/adminBooks/addMember",
-  "/profile",
 ];
 
 const adminRoutes = [
