@@ -39,7 +39,7 @@ export default function BookCard({
         title: "Error",
         description: "Please log in to request a book.",
         variant: "destructive",
-        duration: 5000,
+        duration: 2000,
       });
       return;
     }
@@ -58,8 +58,8 @@ export default function BookCard({
       toast({
         title: "Book Requested",
         description: `Your request for "${title}" has been submitted.`,
-        duration: 5000,
-        className: "bg-rose-500 text-white",
+        duration: 2000,
+        className: "bg-green-500 text-white",
       });
     } catch (error) {
       console.error("Error requesting book:", error);
@@ -67,7 +67,7 @@ export default function BookCard({
         title: "Request Failed",
         description: "Unable to request the book. Please try again.",
         variant: "destructive",
-        duration: 5000,
+        duration: 2000,
       });
     } finally {
       setIsRequesting(false);

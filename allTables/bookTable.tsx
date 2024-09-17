@@ -108,7 +108,7 @@ export default function BooksTable({
       <p className="text-sm text-gray-600 mb-1">ISBN: {book.isbnNo}</p>
       <div className="flex justify-between items-center mt-2">
         <span className="text-sm font-medium text-rose-600">
-          ${book.price.toFixed(2)}
+          ₹{book.price.toFixed(2)}
         </span>
         <span className="text-sm text-gray-600">
           {book.availableCopies} copies available
@@ -120,13 +120,13 @@ export default function BooksTable({
   return (
     <ToastProvider>
       {/* Mobile view */}
-      <div className="md:hidden">{books.map(renderMobileCard)}</div>
+      <div className="md:hidden bg-white">{books.map(renderMobileCard)}</div>
 
       {/* Desktop view */}
-      <div className="hidden md:block rounded-md border border-rose-200 overflow-hidden">
+      <div className="hidden md:block rounded-md border bg-white border-rose-200 overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-rose-100">
+            <TableRow>
               {[
                 "title",
                 "author",
@@ -151,7 +151,7 @@ export default function BooksTable({
           </TableHeader>
           <TableBody>
             {books.map((book) => (
-              <TableRow key={book.id} className="hover:bg-rose-50">
+              <TableRow key={book.id}>
                 <TableCell className="font-medium">
                   <div className="flex items-center">
                     <BookOpenIcon className="mr-2 h-5 w-5 text-rose-400" />
@@ -161,8 +161,10 @@ export default function BooksTable({
                 <TableCell>{book.author}</TableCell>
                 <TableCell>{book.publisher}</TableCell>
                 <TableCell>{book.isbnNo}</TableCell>
-                <TableCell>{book.availableCopies}</TableCell>
-                <TableCell>${book.price.toFixed(2)}</TableCell>
+                <TableCell className="flex justify-center align-middle">
+                  {book.availableCopies}
+                </TableCell>
+                <TableCell>₹{book.price.toFixed(2)}</TableCell>
                 <TableCell>
                   <BookActionButtons
                     book={book}

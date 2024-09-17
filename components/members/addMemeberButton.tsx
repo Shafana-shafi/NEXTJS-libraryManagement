@@ -9,7 +9,7 @@ export default function AddMemeberButton() {
 
   return (
     <button
-      className="flex items-center justify-center p-2 bg-black hover:bg-gray-400 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 self-center"
+      className="flex items-center justify-center p-2 bg-rose-800 hover:bg-gray-400 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 self-center"
       onClick={() => {
         router.push("/adminBooks/addMember");
       }}

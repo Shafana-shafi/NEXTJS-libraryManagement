@@ -28,11 +28,6 @@ const adminLinks = [
     href: "/adminBooks/members",
     icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
   },
-  {
-    name: "Add New Members",
-    href: "/adminBooks/addMember",
-    icon: <UserPlusIcon className="w-5 h-5 text-rose-400" />,
-  },
 ];
 
 const userLinks = [

@@ -15,11 +15,7 @@ const protectedRoutes = [
   "/adminBooks/addMember",
 ];
 
-const adminRoutes = [
-  "/adminBooks",
-  "/adminBooks/members",
-  "/adminBooks/addMember",
-];
+const adminRoutes = ["/adminBooks", "/adminBooks/members"];
 
 const userRoutes = ["/userBooks"];
 

@@ -15,29 +15,61 @@ const session = await getServerSession(authOptions);
 
 const isAdmin = session?.user.role === "admin";
 
-export async function handleAccept(memberId: number, bookId: number) {
+export async function handleAccept(
+  memberId: number,
+  bookId: number,
+  requestId: number
+) {
   if (!isAdmin) {
     throw new Error("Unauthorized");
   }
-  await updateRequestStatus(memberId, bookId, "success", today, null);
+  await updateRequestStatus(
+    memberId,
+    bookId,
+    "success",
+    today,
+    null,
+    requestId
+  );
   await updateAvailableBookCopiesOnIssue(bookId);
   revalidatePath("/requests");
 }
 
-export async function handleDecline(memberId: number, bookId: number) {
+export async function handleDecline(
+  memberId: number,
+  bookId: number,
+  requestId: number
+) {
   if (!isAdmin) {
     throw new Error("Unauthorized");
   }
-  await updateRequestStatus(memberId, bookId, "declined", null, null);
+  await updateRequestStatus(
+    memberId,
+    bookId,
+    "declined",
+    null,
+    null,
+    requestId
+  );
   revalidatePath("/requests");
 }
 
-export async function handleReturn(memberId: number, bookId: number) {
+export async function handleReturn(
+  memberId: number,
+  bookId: number,
+  requestId: number
+) {
   "use server";
   if (!isAdmin) {
     throw new Error("Unauthorized");
   }
-  await updateRequestStatusOnReturn(memberId, bookId, "returned", today);
+  await updateRequestStatusOnReturn(
+    memberId,
+    bookId,
+    "returned",
+    today,
+    requestId
+  );
   await updateAvailableBookCopiesOnReturn(bookId);
   revalidatePath("/requests");
 }

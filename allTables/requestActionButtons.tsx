@@ -9,9 +9,21 @@ interface RequestActionButtonsProps {
   memberId: number;
   bookId: number;
   status: string;
-  onAccept: (memberId: number, bookId: number) => Promise<void>;
-  onDecline: (memberId: number, bookId: number) => Promise<void>;
-  onReturn: (memberId: number, bookId: number) => Promise<void>; // Add handler for return action
+  onAccept: (
+    memberId: number,
+    bookId: number,
+    requestId: number
+  ) => Promise<void>;
+  onDecline: (
+    memberId: number,
+    bookId: number,
+    requestId: number
+  ) => Promise<void>;
+  onReturn: (
+    memberId: number,
+    bookId: number,
+    requestId: number
+  ) => Promise<void>; // Add handler for return action
   returnDate: Date | null;
 }
 
@@ -32,11 +44,11 @@ export function RequestActionButtons({
   const handleAccept = async () => {
     setIsPending(true);
     try {
-      await onAccept(memberId, bookId);
+      await onAccept(memberId, bookId, requestId);
       toast({
         title: "Request Accepted",
         description: `The request for book ${bookId} has been accepted.`,
-        duration: 5000,
+        duration: 2000,
         className: "bg-green-500",
       });
     } catch (error) {
@@ -45,7 +57,7 @@ export function RequestActionButtons({
         title: "Accept Failed",
         description: "Unable to accept the request. Please try again.",
         variant: "destructive",
-        duration: 5000,
+        duration: 2000,
       });
     }
     setIsPending(false);
@@ -54,11 +66,11 @@ export function RequestActionButtons({
   const handleDecline = async () => {
     setIsPending(true);
     try {
-      await onDecline(memberId, bookId);
+      await onDecline(memberId, bookId, requestId);
       toast({
         title: "Request Declined",
         description: `The request for book ${bookId} has been declined.`,
-        duration: 5000,
+        duration: 2000,
         className: "bg-red-500",
       });
     } catch (error) {
@@ -67,7 +79,7 @@ export function RequestActionButtons({
         title: "Decline Failed",
         description: "Unable to decline the request. Please try again.",
         variant: "destructive",
-        duration: 5000,
+        duration: 2000,
       });
     }
     setIsPending(false);
@@ -76,11 +88,11 @@ export function RequestActionButtons({
   const handleReturn = async () => {
     setIsPending(true);
     try {
-      await onReturn(memberId, bookId);
+      await onReturn(memberId, bookId, requestId);
       toast({
         title: "Book Returned",
         description: `The book ${bookId} has been successfully returned.`,
-        duration: 5000,
+        duration: 2000,
         className: "bg-blue-500",
       });
     } catch (error) {
@@ -89,7 +101,7 @@ export function RequestActionButtons({
         title: "Return Failed",
         description: "Unable to process the return. Please try again.",
         variant: "destructive",
-        duration: 5000,
+        duration: 2000,
       });
     }
     setIsPending(false);

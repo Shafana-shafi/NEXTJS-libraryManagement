@@ -172,12 +172,16 @@ export async function fetchAllRequests(
       }
     }
 
+    // Apply the conditions
     baseQuery = baseQuery.where(and(...conditions));
 
+    // Apply custom order for status
     const allRequests = await baseQuery
       .limit(limit)
       .offset(offset)
-      .orderBy(requests.status);
+      .orderBy(
+        sql`FIELD(${requests.status}, 'requested', 'success', 'declined', 'returned')`
+      );
 
     // Ensure the return type matches the FilteredRequest[] and includes the joined fields
     return allRequests as FilteredRequest[];
@@ -333,13 +337,20 @@ export async function updateRequestStatus(
   bookId: number,
   status: string,
   issuedDate: Date | null,
-  returnDate: Date | null
+  returnDate: Date | null,
+  requestId: number
 ) {
   try {
     const allRequests = await db
       .update(requests)
       .set({ status: status, issuedDate: issuedDate, returnDate: returnDate })
-      .where(and(eq(requests.memberId, memberId), eq(requests.bookId, bookId)));
+      .where(
+        and(
+          eq(requests.memberId, memberId),
+          eq(requests.bookId, bookId),
+          eq(requests.id, requestId)
+        )
+      );
     return allRequests;
   } catch (error) {
     console.error("Error creating request:", error);
@@ -452,13 +463,20 @@ export async function updateRequestStatusOnReturn(
   memberId: number,
   bookId: number,
   status: string,
-  returnDate: Date
+  returnDate: Date,
+  requestId: number
 ) {
   try {
     const allRequests = await db
       .update(requests)
       .set({ status: status, returnDate: returnDate })
-      .where(and(eq(requests.memberId, memberId), eq(requests.bookId, bookId)));
+      .where(
+        and(
+          eq(requests.memberId, memberId),
+          eq(requests.bookId, bookId),
+          eq(requests.id, requestId)
+        )
+      );
     return allRequests;
   } catch (error) {
     console.error("Error creating request:", error);

@@ -21,13 +21,13 @@ export default async function Page({
   const totalPages = await fetchPaginatedMembers(query);
 
   return (
-    <div className="flex h-screen flex-col bg-white text-black">
+    <div className="flex h-screen flex-col bg-rose-50 text-rose-900">
       <NavBar />
 
       <div className="flex flex-grow">
         <SideNav />
 
-        <div className="relative flex flex-col flex-grow bg-gray-50 p-4">
+        <div className="relative flex flex-col flex-grow bg-rose-50 p-4">
           <div className="flex items-center justify-center gap-4 pt-7 mb-5">
             <Search placeholder="Search Members..." />
             <AddMemeberButton />
@@ -35,7 +35,7 @@ export default async function Page({
 
           <div className="flex-grow px-4 overflow-auto">
             {totalPages === 0 ? (
-              <div className="text-center text-gray-500 mt-10">
+              <div className="text-center text-rose-500 mt-10">
                 No Members found for the search query.
               </div>
             ) : (
@@ -45,7 +45,7 @@ export default async function Page({
             )}
           </div>
 
-          <div className="sticky bottom-0 left-0 right-0 p-4 bg-white flex justify-center">
+          <div className="sticky bottom-0 left-0 right-0 p-4 bg-rose-100 flex justify-center">
             {totalPages > 0 && <Pagination totalPages={totalPages} />}
           </div>
         </div>

@@ -43,16 +43,16 @@ export default async function MembersTable({
   }
 
   return (
-    <div className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="w-full bg-white shadow-md rounded-lg overflow-hidden border border-rose-200">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone Number</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Actions</TableHead>
+            <TableRow className="bg-rose-100">
+              <TableHead className="text-rose-800">Name</TableHead>
+              <TableHead className="text-rose-800">Email</TableHead>
+              <TableHead className="text-rose-800">Phone Number</TableHead>
+              <TableHead className="text-rose-800">Address</TableHead>
+              <TableHead className="text-rose-800">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -60,7 +60,7 @@ export default async function MembersTable({
               <TableRow key={member.id}>
                 <TableCell>
                   <div className="flex items-center">
-                    <UserIcon className="mr-2 h-5 w-5 text-gray-400" />
+                    <UserIcon className="mr-2 h-5 w-5 text-rose-400" />
                     <span className="font-medium">
                       {member.firstName} {member.lastName}
                     </span>

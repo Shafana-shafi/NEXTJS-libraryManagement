@@ -27,9 +27,21 @@ export interface Request {
 
 interface RequestsTableProps {
   requests: Request[];
-  onAccept: (memberId: number, bookId: number) => Promise<void>;
-  onDecline: (memberId: number, bookId: number) => Promise<void>;
-  onReturn: (memberId: number, bookId: number) => Promise<void>;
+  onAccept: (
+    memberId: number,
+    bookId: number,
+    requestId: number
+  ) => Promise<void>;
+  onDecline: (
+    memberId: number,
+    bookId: number,
+    requestId: number
+  ) => Promise<void>;
+  onReturn: (
+    memberId: number,
+    bookId: number,
+    requestId: number
+  ) => Promise<void>;
 }
 
 export default async function RequestsTable({
@@ -59,7 +71,7 @@ export default async function RequestsTable({
                   {" "}
                   {/* Subtle rose for dividers */}
                   {isAdmin && (
-                    <p className="font-medium text-rose-600">
+                    <p className="font-medium text-rose-800">
                       {" "}
                       {/* Rose for admin labels */}
                       Member Name:{request.memberFirstName}
@@ -71,24 +83,24 @@ export default async function RequestsTable({
                   </p>
                   <Badge
                     variant="outline"
-                    className="text-rose-400 border-rose-400"
+                    className="text-rose-800 border-rose-400"
                   >
                     {" "}
                     {/* Rose for status */}
                     {request.status}
                   </Badge>
                 </div>
-                <p className="text-sm text-rose-400">
+                <p className="text-sm text-rose-800">
                   Request Date:{" "}
                   {new Date(request.requestDate).toLocaleDateString()}
                 </p>
-                <p className="text-sm text-rose-400">
+                <p className="text-sm text-rose-800">
                   Issued Date:{" "}
                   {request.issuedDate
                     ? new Date(request.issuedDate).toLocaleDateString()
                     : "-"}
                 </p>
-                <p className="text-sm text-rose-400">
+                <p className="text-sm text-rose-800">
                   Return Date:{" "}
                   {request.returnDate
                     ? new Date(request.returnDate).toLocaleDateString()
@@ -117,16 +129,16 @@ export default async function RequestsTable({
               <TableHeader>
                 <TableRow>
                   {isAdmin && (
-                    <TableHead className="text-rose-600">Member Name</TableHead>
+                    <TableHead className="text-rose-800">Member Name</TableHead>
                   )}{" "}
                   {/* Rose for table headers */}
-                  <TableHead className="text-rose-600">Book Name</TableHead>
-                  <TableHead className="text-rose-600">Request Date</TableHead>
-                  <TableHead className="text-rose-600">Issued Date</TableHead>
-                  <TableHead className="text-rose-600">Status</TableHead>
-                  <TableHead className="text-rose-600">Return Date</TableHead>
+                  <TableHead className="text-rose-800">Book Name</TableHead>
+                  <TableHead className="text-rose-800">Request Date</TableHead>
+                  <TableHead className="text-rose-800">Issued Date</TableHead>
+                  <TableHead className="text-rose-800">Status</TableHead>
+                  <TableHead className="text-rose-800">Return Date</TableHead>
                   {isAdmin && (
-                    <TableHead className="text-rose-600">Actions</TableHead>
+                    <TableHead className="text-rose-800">Actions</TableHead>
                   )}
                 </TableRow>
               </TableHeader>
@@ -136,31 +148,31 @@ export default async function RequestsTable({
                     {" "}
                     {/* Soft hover effect */}
                     {isAdmin && (
-                      <TableCell className="font-medium text-rose-400">
+                      <TableCell className="font-medium text-rose-800">
                         {request.memberFirstName}
                         {request.memberLastName}
                       </TableCell>
                     )}
-                    <TableCell className="font-medium text-rose-400">
+                    <TableCell className="font-medium text-rose-800">
                       {request.bookTitle}
                     </TableCell>
-                    <TableCell className="font-medium text-rose-400">
+                    <TableCell className="font-medium text-rose-800">
                       {new Date(request.requestDate).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="font-medium text-rose-400">
+                    <TableCell className="font-medium text-rose-800">
                       {request.issuedDate
                         ? new Date(request.issuedDate).toLocaleDateString()
                         : "NULL"}
                     </TableCell>
-                    <TableCell className="font-medium text-rose-400">
+                    <TableCell className="font-medium text-rose-800">
                       <Badge
                         variant="outline"
-                        className="text-rose-400 border-rose-400"
+                        className="text-rose-400 border-rose-800"
                       >
                         {request.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-medium text-rose-400">
+                    <TableCell className="font-medium text-rose-800">
                       {request.returnDate
                         ? new Date(request.returnDate).toLocaleDateString()
                         : "NULL"}

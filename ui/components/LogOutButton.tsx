@@ -31,12 +31,12 @@ export function LogOutButton() {
       className={`w-full justify-start ${
         isLoggingOut
           ? "text-red-500 hover:text-red-700 hover:bg-red-100"
-          : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+          : "text-red-500 hover:text-red-700 hover:bg-gray-200"
       }`}
       disabled={isLoggingOut}
     >
       <LogOut className="mr-2 h-4 w-4" />
-      {isLoggingOut ? "Logging out..." : "Log out"}
+      {isLoggingOut ? "Log Out" : "Log out"}
     </Button>
   );
 }
