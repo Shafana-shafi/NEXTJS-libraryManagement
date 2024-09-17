@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "@/ui/components/separator";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -89,7 +89,7 @@ export default function LoginForm() {
 
   if (sessionStatus === "loading") {
     return (
-      <div className="flex justify-center items-center h-screen bg-black text-white">
+      <div className="flex justify-center items-center h-screen bg-rose-50 text-rose-800">
         Loading...
       </div>
     );
@@ -97,20 +97,20 @@ export default function LoginForm() {
 
   return (
     sessionStatus !== "authenticated" && (
-      <div className="flex min-h-screen items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md bg-gray-900 text-white border border-gray-700 shadow-lg">
+      <div className="flex min-h-screen items-center justify-center bg-rose-50 py-12 px-4 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md bg-white shadow-lg">
           <CardHeader className="space-y-2 pb-4">
-            <CardTitle className="text-2xl font-bold text-center text-white">
+            <CardTitle className="text-2xl font-bold text-center text-rose-800">
               Sign in to your account
             </CardTitle>
-            <CardDescription className="text-center text-gray-400">
+            <CardDescription className="text-center text-rose-600">
               Enter your email below to login to your account
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-400">
+                <Label htmlFor="email" className="text-rose-700">
                   Email address
                 </Label>
                 <Input
@@ -119,11 +119,11 @@ export default function LoginForm() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="bg-gray-800 text-white border-gray-600"
+                  className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-400">
+                <Label htmlFor="password" className="text-rose-700">
                   Password
                 </Label>
                 <Input
@@ -132,34 +132,35 @@ export default function LoginForm() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="bg-gray-800 text-white border-gray-600 "
+                  className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
                 />
               </div>
+              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
               <Button
                 type="submit"
-                className="w-full bg-gray-700 hover:bg-gray-600 py-3 "
+                className="w-full bg-rose-600 hover:bg-rose-700 text-white"
               >
                 Sign in
               </Button>
             </form>
             <div className="mt-4 text-center text-sm">
-              <p className="text-gray-400">
+              <p className="text-rose-600">
                 Dont have an account?{" "}
                 <Link
                   href="/register"
-                  className="font-medium text-gray-300 hover:underline"
+                  className="font-medium text-rose-800 hover:underline"
                 >
                   Register here
                 </Link>
               </p>
             </div>
           </CardContent>
-          <CardFooter className="space-y-4 pt-4">
-            <Separator className="bg-gray-600" />
-            <div className="grid grid-cols-2 gap-4">
+          <CardFooter className="flex flex-col space-y-4 pt-4">
+            <Separator className="bg-rose-200" />
+            <div className="flex flex-col w-full space-y-2">
               <Button
                 variant="outline"
-                className="text-black hover:text-white bg-white hover:bg-gray-700 border border-gray-300"
+                className="w-full text-rose-700 hover:text-rose-800 border-rose-300 hover:bg-rose-50"
                 onClick={() => signIn("google")}
               >
                 <FcGoogle className="mr-2 h-4 w-4" />
@@ -167,7 +168,7 @@ export default function LoginForm() {
               </Button>
               <Button
                 variant="outline"
-                className="text-black hover:text-white bg-white hover:bg-gray-700 border border-gray-300"
+                className="w-full text-rose-700 hover:text-rose-800 border-rose-300 hover:bg-rose-50"
                 onClick={() => signIn("github")}
               >
                 <svg

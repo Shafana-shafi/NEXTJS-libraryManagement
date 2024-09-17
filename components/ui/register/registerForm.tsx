@@ -44,11 +44,12 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md bg-gray-900 text-white border border-gray-700 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-rose-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-white shadow-lg border border-rose-100">
         <CardHeader className="text-center">
           <div className="flex flex-col items-center">
-            <CardTitle className="text-2xl font-bold">
+            <BookOpen className="h-12 w-12 text-rose-600 mb-2" />
+            <CardTitle className="text-2xl font-bold text-rose-800">
               Create your account
             </CardTitle>
           </div>
@@ -56,7 +57,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
         <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-gray-400">
+              <Label htmlFor="firstName" className="text-rose-700">
                 First Name
               </Label>
               <Input
@@ -67,11 +68,11 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 placeholder="John"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="bg-gray-800 text-white border-gray-600"
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-gray-400">
+              <Label htmlFor="lastName" className="text-rose-700">
                 Last Name
               </Label>
               <Input
@@ -82,11 +83,11 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 placeholder="Doe"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="bg-gray-800 text-white border-gray-600"
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-400">
+              <Label htmlFor="email" className="text-rose-700">
                 Email address
               </Label>
               <Input
@@ -98,11 +99,11 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 placeholder="john.doe@example.com"
                 value={formData.email}
                 onChange={handleChange}
-                className="bg-gray-800 text-white border-gray-600"
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-400">
+              <Label htmlFor="password" className="text-rose-700">
                 Password
               </Label>
               <div className="relative">
@@ -113,16 +114,15 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                   autoComplete="new-password"
                   required
                   placeholder="••••••••"
-                  value={formData.password ?? ""} // Use '' when formData.password is null
+                  value={formData.password ?? ""}
                   onChange={handleChange}
-                  className="bg-gray-800 text-white border-gray-600"
+                  className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
                 />
-
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 text-gray-400"
+                  className="absolute right-0 top-0 text-rose-600 hover:text-rose-700"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -135,18 +135,18 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
             </div>
             <Button
               type="submit"
-              className="w-full bg-gray-700 hover:bg-gray-600 py-3"
+              className="w-full bg-rose-600 hover:bg-rose-700 text-white py-2"
             >
               Register
             </Button>
           </form>
         </CardContent>
         <CardFooter>
-          <p className="text-sm text-center w-full text-gray-400">
+          <p className="text-sm text-center w-full text-rose-600">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-medium text-gray-300 hover:underline"
+              className="font-medium text-rose-800 hover:underline"
             >
               Sign in
             </Link>
