@@ -34,12 +34,10 @@ export default async function Page({
   if (session?.user?.email) {
     try {
       const user = await getUserByEmail(session.user.email);
-      let userRole: string | undefined;
       if (user) {
         userRole = user.role;
       } else {
-        // Handle the case when user is undefined
-        userRole = "user"; // or some other default value
+        userRole = "user";
       }
     } catch (error) {
       console.error("Error fetching user role:", error);
@@ -66,11 +64,11 @@ export default async function Page({
   }
 
   return (
-    <div className="flex h-screen flex-col bg-white text-black">
+    <div className="flex h-screen flex-col bg-rose-50 text-rose-900">
       <NavBar />
       <div className="flex flex-grow">
         <SideNav />
-        <div className="relative flex flex-col flex-grow bg-gray-50 p-4">
+        <div className="relative flex flex-col flex-grow bg-rose-50 p-4">
           <div className="flex items-center justify-center gap-4 mb-3 align-middle">
             <Search placeholder="Search Books..." />
             <GenreDropdown genres={genres} />
@@ -78,7 +76,7 @@ export default async function Page({
           </div>
           <div className="flex-grow px-4 overflow-auto">
             {totalPages === 0 ? (
-              <div className="text-center text-gray-500 mt-10">
+              <div className="text-center text-rose-500 mt-10">
                 No books found for the search query.
               </div>
             ) : (
@@ -94,7 +92,7 @@ export default async function Page({
               </Suspense>
             )}
           </div>
-          <div className="sticky bottom-0 left-0 right-0 p-3 bg-white flex justify-center">
+          <div className="sticky bottom-0 left-0 right-0 p-3 bg-rose-100 flex justify-center">
             {totalPages > 0 && <Pagination totalPages={totalPages} />}
           </div>
         </div>

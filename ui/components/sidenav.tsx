@@ -19,11 +19,6 @@ const adminLinks = [
     icon: <Book className="w-5 h-5 text-rose-400" />,
   },
   {
-    name: "Transactions",
-    href: "/transactions",
-    icon: <ArrowLeftRight className="w-5 h-5 text-rose-400" />,
-  },
-  {
     name: "Requests",
     href: "/requests",
     icon: <GitPullRequestCreate className="w-5 h-5 text-rose-400" />,
@@ -34,7 +29,7 @@ const adminLinks = [
     icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
   },
   {
-    name: "Add New Admin",
+    name: "Add New Members",
     href: "/adminBooks/addMember",
     icon: <UserPlusIcon className="w-5 h-5 text-rose-400" />,
   },

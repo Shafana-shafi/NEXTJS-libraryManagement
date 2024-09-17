@@ -74,10 +74,10 @@ export default function BooksTable({
 
   return (
     <ToastProvider>
-      <div className="rounded-md border">
+      <div className="rounded-md border border-rose-200 overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-rose-100">
               {[
                 "title",
                 "author",
@@ -86,26 +86,26 @@ export default function BooksTable({
                 "availableCopies",
                 "price",
               ].map((key) => (
-                <TableHead key={key}>
+                <TableHead key={key} className="text-rose-800">
                   <Button
                     variant="ghost"
                     onClick={() => handleSort(key as keyof Book)}
-                    className="hover:bg-transparent"
+                    className="hover:bg-rose-200 text-rose-800"
                   >
                     {key.charAt(0).toUpperCase() + key.slice(1)}
                     {getSortIcon(key as keyof Book)}
                   </Button>
                 </TableHead>
               ))}
-              <TableHead>Actions</TableHead>
+              <TableHead className="text-rose-800">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {books.map((book) => (
-              <TableRow key={book.id}>
+              <TableRow key={book.id} className="hover:bg-rose-50">
                 <TableCell className="font-medium">
                   <div className="flex items-center">
-                    <BookOpenIcon className="mr-2 h-5 w-5 text-gray-400" />
+                    <BookOpenIcon className="mr-2 h-5 w-5 text-rose-400" />
                     {book.title}
                   </div>
                 </TableCell>

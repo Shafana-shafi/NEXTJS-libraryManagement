@@ -58,131 +58,182 @@ export default function AddBookForm() {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Add New Book</CardTitle>
+    <Card className="w-full max-w-2xl mx-auto bg-rose-50 border-rose-200">
+      <CardHeader className="bg-rose-100">
+        <CardTitle className="text-rose-800">Add New Book</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              {...register("title")}
-              aria-invalid={!!errors.title}
-              aria-describedby="title-error"
-              onBlur={() => handleBlur("title")}
-              onChange={(e) => setValue("title", e.target.value)}
-            />
-            {errors.title && (
-              <p id="title-error" className="text-red-600 text-sm">
-                {errors.title.message}
-              </p>
-            )}
+        <CardContent className="space-y-4 pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="title" className="text-rose-700">
+                Title
+              </Label>
+              <Input
+                id="title"
+                {...register("title")}
+                aria-invalid={!!errors.title}
+                aria-describedby="title-error"
+                onBlur={() => handleBlur("title")}
+                onChange={(e) => setValue("title", e.target.value)}
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+              />
+              {errors.title && (
+                <p id="title-error" className="text-rose-600 text-sm">
+                  {errors.title.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="author" className="text-rose-700">
+                Author
+              </Label>
+              <Input
+                id="author"
+                {...register("author")}
+                aria-invalid={!!errors.author}
+                aria-describedby="author-error"
+                onBlur={() => handleBlur("author")}
+                onChange={(e) => setValue("author", e.target.value)}
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+              />
+              {errors.author && (
+                <p id="author-error" className="text-rose-600 text-sm">
+                  {errors.author.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="publisher" className="text-rose-700">
+                Publisher
+              </Label>
+              <Input
+                id="publisher"
+                {...register("publisher")}
+                aria-invalid={!!errors.publisher}
+                aria-describedby="publisher-error"
+                onBlur={() => handleBlur("publisher")}
+                onChange={(e) => setValue("publisher", e.target.value)}
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+              />
+              {errors.publisher && (
+                <p id="publisher-error" className="text-rose-600 text-sm">
+                  {errors.publisher.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="genre" className="text-rose-700">
+                Genre
+              </Label>
+              <Input
+                id="genre"
+                {...register("genre")}
+                aria-invalid={!!errors.genre}
+                aria-describedby="genre-error"
+                onBlur={() => handleBlur("genre")}
+                onChange={(e) => setValue("genre", e.target.value)}
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+              />
+              {errors.genre && (
+                <p id="genre-error" className="text-rose-600 text-sm">
+                  {errors.genre.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="isbnNo" className="text-rose-700">
+                ISBN
+              </Label>
+              <Input
+                id="isbnNo"
+                {...register("isbnNo")}
+                aria-invalid={!!errors.isbnNo}
+                aria-describedby="isbnNo-error"
+                onBlur={() => handleBlur("isbnNo")}
+                onChange={(e) => setValue("isbnNo", e.target.value)}
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+              />
+              {errors.isbnNo && (
+                <p id="isbnNo-error" className="text-rose-600 text-sm">
+                  {errors.isbnNo.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="pages" className="text-rose-700">
+                Pages
+              </Label>
+              <Input
+                id="pages"
+                type="number"
+                {...register("pages")}
+                aria-invalid={!!errors.pages}
+                aria-describedby="pages-error"
+                onBlur={() => handleBlur("pages")}
+                onChange={(e) => setValue("pages", parseInt(e.target.value))}
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+              />
+              {errors.pages && (
+                <p id="pages-error" className="text-rose-600 text-sm">
+                  {errors.pages.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="totalCopies" className="text-rose-700">
+                Total Copies
+              </Label>
+              <Input
+                id="totalCopies"
+                type="number"
+                {...register("totalCopies")}
+                aria-invalid={!!errors.totalCopies}
+                aria-describedby="totalCopies-error"
+                onBlur={() => handleBlur("totalCopies")}
+                onChange={(e) =>
+                  setValue("totalCopies", parseInt(e.target.value))
+                }
+                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+              />
+              {errors.totalCopies && (
+                <p id="totalCopies-error" className="text-rose-600 text-sm">
+                  {errors.totalCopies.message}
+                </p>
+              )}
+            </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="publisher">Publisher</Label>
+            <Label htmlFor="price" className="text-rose-700">
+              Price
+            </Label>
             <Input
-              id="publisher"
-              {...register("publisher")}
-              aria-invalid={!!errors.publisher}
-              aria-describedby="publisher-error"
-              onBlur={() => handleBlur("publisher")}
-              onChange={(e) => setValue("publisher", e.target.value)}
-            />
-            {errors.publisher && (
-              <p id="publisher-error" className="text-red-600 text-sm">
-                {errors.publisher.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="author">Author</Label>
-            <Input
-              id="author"
-              {...register("author")}
-              aria-invalid={!!errors.author}
-              aria-describedby="author-error"
-              onBlur={() => handleBlur("author")}
-              onChange={(e) => setValue("author", e.target.value)}
-            />
-            {errors.author && (
-              <p id="author-error" className="text-red-600 text-sm">
-                {errors.author.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="genre">Genre</Label>
-            <Input
-              id="genre"
-              {...register("genre")}
-              aria-invalid={!!errors.genre}
-              aria-describedby="genre-error"
-              onBlur={() => handleBlur("genre")}
-              onChange={(e) => setValue("genre", e.target.value)}
-            />
-            {errors.genre && (
-              <p id="genre-error" className="text-red-600 text-sm">
-                {errors.genre.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="isbnNo">ISBN</Label>
-            <Input
-              id="isbnNo"
-              {...register("isbnNo")}
-              aria-invalid={!!errors.isbnNo}
-              aria-describedby="isbnNo-error"
-              onBlur={() => handleBlur("isbnNo")}
-              onChange={(e) => setValue("isbnNo", e.target.value)}
-            />
-            {errors.isbnNo && (
-              <p id="isbnNo-error" className="text-red-600 text-sm">
-                {errors.isbnNo.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="pages">Pages</Label>
-            <Input
-              id="pages"
+              id="price"
               type="number"
-              {...register("pages")}
-              aria-invalid={!!errors.pages}
-              aria-describedby="pages-error"
-              onBlur={() => handleBlur("pages")}
-              onChange={(e) => setValue("pages", parseInt(e.target.value))}
+              {...register("price")}
+              aria-invalid={!!errors.price}
+              aria-describedby="price-error"
+              onBlur={() => handleBlur("price")}
+              onChange={(e) => setValue("price", parseInt(e.target.value))}
+              className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
             />
-            {errors.pages && (
-              <p id="pages-error" className="text-red-600 text-sm">
-                {errors.pages.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="totalCopies">Total Copies</Label>
-            <Input
-              id="totalCopies"
-              type="number"
-              {...register("totalCopies")}
-              aria-invalid={!!errors.totalCopies}
-              aria-describedby="totalCopies-error"
-              onBlur={() => handleBlur("totalCopies")}
-              onChange={(e) =>
-                setValue("totalCopies", parseInt(e.target.value))
-              }
-            />
-            {errors.totalCopies && (
-              <p id="totalCopies-error" className="text-red-600 text-sm">
-                {errors.totalCopies.message}
+            {errors.price && (
+              <p id="price-error" className="text-rose-600 text-sm">
+                {errors.price.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button type="submit" disabled={isSubmitting}>
+        <CardFooter className="bg-rose-100">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-rose-600 hover:bg-rose-700 text-white"
+          >
             Add Book
           </Button>
         </CardFooter>
