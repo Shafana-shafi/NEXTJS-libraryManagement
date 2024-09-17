@@ -10,7 +10,7 @@ export default function LandingPageClient() {
   return (
     <div className="flex flex-col min-h-screen bg-rose-50 text-rose-900">
       {/* Header */}
-      <header className="px-4 lg:px-6 h-20 flex items-center justify-between border-b border-rose-200 bg-white shadow-sm">
+      <header className="px-4 lg:px-6 py-3 h-20 flex items-center justify-between border-b border-rose-200 bg-white shadow-sm mb-5">
         <Link className="flex items-center space-x-2 text-rose-800" href="/">
           <BookOpen className="h-8 w-8 text-rose-600" />
           <span className="ml-2 text-xl font-bold">{t("libraryName")}</span>
@@ -47,13 +47,13 @@ export default function LandingPageClient() {
       </header>
 
       {/* Main Section */}
-      <main className="flex-1">
+      <main className="flex justify-center items-center flex-grow">
         <section className="relative flex items-center justify-center py-24 lg:py-32 bg-gradient-to-b from-rose-100 to-rose-50">
           <div className="text-center space-y-8 px-4">
             <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl text-rose-900">
               {t("welcome")}
             </h1>
-            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-rose-700">
+            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-rose-700 p-5">
               {t("description")}
             </p>
             <div className="flex justify-center space-x-4">
@@ -69,68 +69,10 @@ export default function LandingPageClient() {
             </div>
           </div>
         </section>
-
-        {/* Features Section */}
-        <section id="features" className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12 text-rose-800">
-              {t("featuresTitle")}
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <FeatureCard
-                icon={<Search className="h-10 w-10 text-rose-600" />}
-                title={t("feature1Title")}
-                description={t("feature1Description")}
-              />
-              <FeatureCard
-                icon={<Users className="h-10 w-10 text-rose-600" />}
-                title={t("feature2Title")}
-                description={t("feature2Description")}
-              />
-              <FeatureCard
-                icon={<Clock className="h-10 w-10 text-rose-600" />}
-                title={t("feature3Title")}
-                description={t("feature3Description")}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className="py-16 bg-rose-100">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8 text-rose-800">
-              {t("aboutTitle")}
-            </h2>
-            <p className="text-lg text-center max-w-3xl mx-auto text-rose-700">
-              {t("aboutDescription")}
-            </p>
-          </div>
-        </section>
-
-        {/* Contact Section */}
-        <section id="contact" className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8 text-rose-800">
-              {t("contactTitle")}
-            </h2>
-            <p className="text-lg text-center max-w-3xl mx-auto mb-8 text-rose-700">
-              {t("contactDescription")}
-            </p>
-            <div className="flex justify-center">
-              <Button
-                size="lg"
-                className="bg-rose-600 hover:bg-rose-700 text-white"
-              >
-                {t("contactButton")}
-              </Button>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
-      <footer className="bg-rose-800 py-8 px-4 md:px-6 text-white">
+      <footer className="bg-rose-800 py-8 px-4 md:px-6 text-rose-700">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between text-center md:text-left">
           <div className="mb-4 md:mb-0">
             <h3 className="text-xl font-bold mb-2">{t("libraryName")}</h3>
@@ -162,16 +104,4 @@ interface FeatureCardProps {
   icon: ReactNode;
   title: string;
   description: string;
-}
-
-function FeatureCard({ icon, title, description }: FeatureCardProps) {
-  return (
-    <div className="bg-rose-50 p-6 rounded-lg shadow-md text-center">
-      <div className="inline-block p-3 bg-rose-100 rounded-full mb-4">
-        {icon}
-      </div>
-      <h3 className="text-xl font-semibold mb-2 text-rose-800">{title}</h3>
-      <p className="text-rose-600">{description}</p>
-    </div>
-  );
 }

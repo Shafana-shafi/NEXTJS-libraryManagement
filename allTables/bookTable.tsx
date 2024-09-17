@@ -75,9 +75,9 @@ export default function BooksTable({
   return (
     <ToastProvider>
       <div className="rounded-md border border-rose-200 overflow-hidden">
-        <Table>
+        <Table className="min-w-full block lg:table">
           <TableHeader>
-            <TableRow className="bg-rose-100">
+            <TableRow className="block lg:table-row">
               {[
                 "title",
                 "author",
@@ -86,37 +86,53 @@ export default function BooksTable({
                 "availableCopies",
                 "price",
               ].map((key) => (
-                <TableHead key={key} className="text-rose-800">
+                <TableHead
+                  key={key}
+                  className="text-rose-800 block lg:table-cell"
+                >
                   <Button
                     variant="ghost"
                     onClick={() => handleSort(key as keyof Book)}
-                    className="hover:bg-rose-200 text-rose-800"
+                    className="hover:bg-rose-200 text-rose-800 flex items-center"
                   >
                     {key.charAt(0).toUpperCase() + key.slice(1)}
                     {getSortIcon(key as keyof Book)}
                   </Button>
                 </TableHead>
               ))}
-              <TableHead className="text-rose-800">Actions</TableHead>
+              <TableHead className="text-rose-800 block lg:table-cell">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {books.map((book) => (
-              <TableRow key={book.id} className="hover:bg-rose-50">
-                <TableCell className="font-medium">
+              <TableRow
+                key={book.id}
+                className="block lg:table-row border-t lg:border-none"
+              >
+                <TableCell className="block lg:table-cell font-medium">
                   <div className="flex items-center">
                     <BookOpenIcon className="mr-2 h-5 w-5 text-rose-400" />
                     {book.title}
                   </div>
                 </TableCell>
-                <TableCell>{book.author}</TableCell>
-                <TableCell>{book.publisher}</TableCell>
-                <TableCell>{book.isbnNo}</TableCell>
-                <TableCell>{book.availableCopies}</TableCell>
-                <TableCell className="flex justify-center align-middle">
+                <TableCell className="block lg:table-cell">
+                  {book.author}
+                </TableCell>
+                <TableCell className="block lg:table-cell">
+                  {book.publisher}
+                </TableCell>
+                <TableCell className="block lg:table-cell">
+                  {book.isbnNo}
+                </TableCell>
+                <TableCell className="block lg:table-cell">
+                  {book.availableCopies}
+                </TableCell>
+                <TableCell className="block lg:table-cell">
                   {book.price}
                 </TableCell>
-                <TableCell>
+                <TableCell className="block lg:table-cell">
                   <BookActionButtons
                     book={book}
                     onDelete={onDeleteBook}
