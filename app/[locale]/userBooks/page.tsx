@@ -8,6 +8,8 @@ import SideNav from "@/ui/components/sidenav";
 import NavBar from "@/ui/components/navBar";
 import { getDistinctGenres } from "@/repositories/book.repository";
 import GenreDropdown from "@/allTables/FilterBooksComponent";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/authOptions";
 
 export default async function Page({
   searchParams,
@@ -23,7 +25,8 @@ export default async function Page({
   const selectedGenre = searchParams?.genre || "all";
   const genres = await getDistinctGenres();
   const totalPages = await fetchPaginatedBooks(query, selectedGenre);
-
+  const session = await getServerSession(authOptions);
+  const memberId = session?.user.id;
   return (
     <div className="flex h-screen flex-col bg-rose-50">
       <NavBar />
@@ -53,6 +56,7 @@ export default async function Page({
                     query={query}
                     currentPage={currentPage}
                     genre={selectedGenre}
+                    memberId={Number(memberId)}
                   />
                 </div>
               </Suspense>

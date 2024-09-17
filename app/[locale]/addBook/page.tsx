@@ -9,7 +9,7 @@ export default function AddBookPage() {
       <NavBar />
       <div className="flex flex-grow">
         <SideNav />
-        <div className="flex flex-col w-full p-4 justify-center">
+        <div className="flex flex-col w-full p-4 justify-center align-middle">
           <AddBookForm />
         </div>
       </div>

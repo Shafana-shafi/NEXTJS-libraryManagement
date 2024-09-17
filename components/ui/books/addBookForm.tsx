@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { handleAddBook } from "../../../actions/addBookActions";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { useToast } from "@/components/ui/use-toast";
 
 type iBook = z.infer<typeof bookSchema> & {
   id: number;
@@ -37,7 +37,7 @@ export default function AddBookForm() {
     resolver: zodResolver(bookSchema),
     mode: "onChange",
   });
-
+  const { toast } = useToast();
   const onSubmit = async (data: iBook) => {
     console.log(data, "book data");
     const result = await handleAddBook(data);
@@ -45,11 +45,21 @@ export default function AddBookForm() {
       if (result.errors) {
         setServerErrors(result.errors);
       } else {
-        toast.error(result.error || "An error occurred");
+        toast({
+          title: "Error",
+          description: "Something went wront while adding book",
+          variant: "destructive",
+          duration: 1000,
+        });
       }
     }
     if (result?.success) {
-      toast.success("Book added successfully");
+      toast({
+        title: "Success",
+        description: "Book Added Successfully",
+        className: "bg-green-500",
+        duration: 1000,
+      });
     }
   };
 
@@ -228,7 +238,7 @@ export default function AddBookForm() {
             )}
           </div>
         </CardContent>
-        <CardFooter className="bg-rose-100">
+        <CardFooter className="bg-rose-100 flex justify-center align-middle pt-6">
           <Button
             type="submit"
             disabled={isSubmitting}

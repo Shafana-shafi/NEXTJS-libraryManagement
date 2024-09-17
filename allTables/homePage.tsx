@@ -72,23 +72,20 @@ export default function LandingPageClient() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-rose-800 py-8 px-4 md:px-6 text-rose-700">
+      <footer className="bg-rose-800 py-8 px-4 md:px-6 text-white">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between text-center md:text-left">
           <div className="mb-4 md:mb-0">
             <h3 className="text-xl font-bold mb-2">{t("libraryName")}</h3>
-            <p className="text-sm text-rose-200">
+            <p className="text-sm text-white">
               {t("copyright", { year: new Date().getFullYear() })}
             </p>
           </div>
           <nav className="flex flex-wrap justify-center md:justify-end space-x-4 mt-4 md:mt-0 text-sm">
-            <Link
-              className="hover:text-rose-300 transition-colors"
-              href="/terms"
-            >
+            <Link className="hover:text-white transition-colors" href="/terms">
               {t("termsOfService")}
             </Link>
             <Link
-              className="hover:text-rose-300 transition-colors"
+              className="hover:text-white transition-colors"
               href="/privacy"
             >
               {t("privacy")}

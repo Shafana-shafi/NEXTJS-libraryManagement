@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { iBookBase } from "@/models/book.model";
 import { ToastProvider } from "@/components/ui/toast";
 import {
@@ -32,11 +32,6 @@ export type Book = iBookBase & {
   price: number;
 };
 
-type SortConfig = {
-  key: keyof Book;
-  direction: "asc" | "desc";
-};
-
 export default function BooksTable({
   initialBooks,
   onEditBook,
@@ -46,35 +41,35 @@ export default function BooksTable({
   onEditBook: (id: number, updatedBook: iBookBase) => Promise<void>;
   onDeleteBook: (bookId: number) => Promise<void>;
 }) {
-  const [books, setBooks] = useState(initialBooks);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: "title",
-    direction: "asc",
-  });
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  if (books.length === 0) {
+  if (initialBooks.length === 0) {
     return null;
   }
 
   const handleSort = (key: keyof Book) => {
-    let direction: "asc" | "desc" = "desc";
-    if (sortConfig.key === key && sortConfig.direction === "desc") {
-      direction = "asc";
+    const params = new URLSearchParams(searchParams);
+    const currentSort = params.get("sort");
+    const currentOrder = params.get("order");
+
+    let newOrder = "asc";
+    if (currentSort === key && currentOrder === "asc") {
+      newOrder = "desc";
     }
-    setSortConfig({ key, direction });
 
-    const sortedBooks = [...books].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
+    params.set("sort", key);
+    params.set("order", newOrder);
 
-    setBooks(sortedBooks);
+    router.push(`?${params.toString()}`);
   };
 
   const getSortIcon = (key: keyof Book) => {
-    if (sortConfig.key === key) {
-      return sortConfig.direction === "asc" ? (
+    const currentSort = searchParams.get("sort");
+    const currentOrder = searchParams.get("order");
+
+    if (currentSort === key) {
+      return currentOrder === "asc" ? (
         <ChevronUp className="ml-2 h-4 w-4" />
       ) : (
         <ChevronDown className="ml-2 h-4 w-4" />
@@ -118,9 +113,11 @@ export default function BooksTable({
   );
 
   return (
-    <ToastProvider>
+    <>
       {/* Mobile view */}
-      <div className="md:hidden bg-white">{books.map(renderMobileCard)}</div>
+      <div className="md:hidden bg-white">
+        {initialBooks.map(renderMobileCard)}
+      </div>
 
       {/* Desktop view */}
       <div className="hidden md:block rounded-md border bg-white border-rose-200 overflow-hidden">
@@ -150,7 +147,7 @@ export default function BooksTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {books.map((book) => (
+            {initialBooks.map((book) => (
               <TableRow key={book.id}>
                 <TableCell className="font-medium">
                   <div className="flex items-center">
@@ -177,6 +174,6 @@ export default function BooksTable({
           </TableBody>
         </Table>
       </div>
-    </ToastProvider>
+    </>
   );
 }

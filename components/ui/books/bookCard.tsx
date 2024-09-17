@@ -18,6 +18,7 @@ interface BookCardProps {
   genre: string;
   availableCopies: number;
   price: number;
+  memberId: number;
 }
 
 export default function BookCard({
@@ -28,28 +29,17 @@ export default function BookCard({
   genre,
   availableCopies,
   price,
+  memberId,
 }: BookCardProps) {
   const [isRequesting, setIsRequesting] = useState(false);
-  const { data: session } = useSession();
   const { toast } = useToast();
 
   const handleIssueBookRequest = async () => {
-    if (!session) {
-      toast({
-        title: "Error",
-        description: "Please log in to request a book.",
-        variant: "destructive",
-        duration: 2000,
-      });
-      return;
-    }
     setIsRequesting(true);
     try {
-      const email = session.user?.email as string;
-      const user = await getUserByEmail(email);
       const request = {
         bookId: Number(id),
-        memberId: Number(user?.id),
+        memberId: Number(memberId),
         issuedDate: null,
         requestDate: new Date(),
         status: "requested",
@@ -58,7 +48,7 @@ export default function BookCard({
       toast({
         title: "Book Requested",
         description: `Your request for "${title}" has been submitted.`,
-        duration: 2000,
+        duration: 1000,
         className: "bg-green-500 text-white",
       });
     } catch (error) {
@@ -67,7 +57,7 @@ export default function BookCard({
         title: "Request Failed",
         description: "Unable to request the book. Please try again.",
         variant: "destructive",
-        duration: 2000,
+        duration: 1000,
       });
     } finally {
       setIsRequesting(false);
@@ -121,7 +111,7 @@ export default function BookCard({
         <Button
           className="w-full text-base py-2 bg-rose-600 hover:bg-rose-700 text-white"
           onClick={handleIssueBookRequest}
-          disabled={isRequesting || availableCopies === 0 || !session}
+          disabled={isRequesting || availableCopies === 0}
         >
           {availableCopies === 0
             ? "Unavailable"

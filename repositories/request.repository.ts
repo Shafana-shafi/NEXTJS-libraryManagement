@@ -68,7 +68,7 @@ export async function fetchAllRequests(
 ): Promise<FilteredRequest[]> {
   const offset = (currentPage - 1) * 6;
   const limit = 6;
-
+  console.log(filters.returnedDate?.toString());
   try {
     let baseQuery = db
       .select({
@@ -108,13 +108,17 @@ export async function fetchAllRequests(
 
     // Apply date filters
     if (filters.requestDate) {
-      conditions.push(eq(requests.requestDate, filters.requestDate));
+      conditions.push(
+        like(requests.requestDate, filters.requestDate.toString())
+      );
     }
     if (filters.issuedDate) {
       conditions.push(eq(requests.issuedDate, filters.issuedDate));
     }
     if (filters.returnedDate) {
-      conditions.push(eq(requests.returnDate, filters.returnedDate));
+      conditions.push(
+        like(requests.requestDate, filters.returnedDate.toString())
+      );
     }
 
     // Apply date range filters

@@ -6,8 +6,21 @@ import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./authOptions";
 import { books, members, transactions } from "@/db/schema";
-import { eq, and, like, or, count, isNotNull } from "drizzle-orm";
+import {
+  eq,
+  and,
+  like,
+  or,
+  count,
+  isNotNull,
+  desc,
+  asc,
+  SQLWrapper,
+  AnyColumn,
+  SQL,
+} from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { MySqlColumn } from "drizzle-orm/mysql-core/columns";
 
 const poolConnection = mysql2.createPool({
   uri: process.env.DATABASE_URL,
@@ -65,56 +78,80 @@ export async function completeProfile(formData: FormData) {
 export async function login(formData: FormData) {}
 
 const ITEMS_PER_PAGE = 8;
+
 export async function fetchFilteredBooks(
+  query: string,
+  currentPage: number,
+  genre: string,
+  sort?: string,
+  order: "asc" | "desc" = "asc"
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  let new_query;
+  let allBooks;
+  try {
+    let baseQuery = db
+      .select()
+      .from(books)
+      .where(
+        and(
+          or(
+            like(books.title, `%${query}%`),
+            like(books.isbnNo, `%${query}%`),
+            like(books.publisher, `%${query}%`),
+            like(books.author, `%${query}%`),
+            like(books.availableCopies, `%${query}%`),
+            like(books.price, `%${query}%`)
+          ),
+          genre !== "all" ? eq(books.genre, genre) : undefined
+        )
+      )
+      .limit(ITEMS_PER_PAGE)
+      .offset(offset);
+
+    // Apply sorting if a sort field is provided
+    if (sort && sort in books) {
+      const sortField = books[sort as keyof typeof books] as MySqlColumn;
+      const orderBy: SQL = order === "desc" ? desc(sortField) : asc(sortField);
+      new_query = baseQuery.orderBy(orderBy);
+      allBooks = await new_query;
+    } else {
+      allBooks = await baseQuery;
+    }
+    console.log("hi");
+    return allBooks;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch books.");
+  }
+}
+
+export async function fetchFilteredBooksForUsers(
   query: string,
   currentPage: number,
   genre: string
 ) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  let allBooks;
+
   try {
-    // Perform the transaction
-    console.log(genre, "genre", "hi");
+    let baseQuery = db
+      .select()
+      .from(books)
+      .where(
+        and(
+          or(
+            like(books.title, `%${query}%`),
+            like(books.isbnNo, `%${query}%`),
+            like(books.publisher, `%${query}%`)
+          ),
+          genre !== "all" ? eq(books.genre, genre) : undefined
+        )
+      )
+      .limit(ITEMS_PER_PAGE)
+      .offset(offset);
 
-    if (genre === "all") {
-      allBooks = await db.transaction(async (transaction) => {
-        // Check for existing members
-        const filteredBooks = await transaction
-          .select()
-          .from(books)
-          .where(
-            or(
-              like(books.title, `%${query}%`),
-              like(books.isbnNo, `%${query}%`),
-              like(books.publisher, `%${query}%`)
-            )
-          )
+    const allBooks = await baseQuery;
 
-          .limit(ITEMS_PER_PAGE)
-          .offset(offset);
-        return filteredBooks;
-      });
-    } else {
-      allBooks = await db.transaction(async (transaction) => {
-        // Check for existing members
-        const filteredBooks = await transaction
-          .select()
-          .from(books)
-          .where(
-            and(
-              or(
-                like(books.title, `%${query}%`),
-                like(books.isbnNo, `%${query}%`),
-                like(books.publisher, `%${query}%`)
-              ),
-              eq(books.genre, genre)
-            )
-          )
-          .limit(ITEMS_PER_PAGE)
-          .offset(offset);
-        return filteredBooks;
-      });
-    }
     return allBooks;
   } catch (error) {
     console.error("Database Error:", error);

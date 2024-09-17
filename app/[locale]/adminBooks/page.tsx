@@ -26,6 +26,8 @@ export default async function Page({
     query?: string;
     page?: string;
     genre?: string;
+    sort?: string;
+    order?: "asc" | "desc";
   };
 }) {
   const session = await getServerSession(authOptions);
@@ -47,20 +49,29 @@ export default async function Page({
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
   const selectedGenre = searchParams?.genre || "all";
+  const sortField = searchParams?.sort;
+  const sortOrder = searchParams?.order || "asc";
+
   const genres = await getDistinctGenres();
   const totalPages = await fetchPaginatedBooks(query, selectedGenre);
-  const books = await fetchFilteredBooks(query, currentPage, selectedGenre);
+  const books = await fetchFilteredBooks(
+    query,
+    currentPage,
+    selectedGenre,
+    sortField,
+    sortOrder
+  );
 
   async function handleEditBook(id: number, updatedBook: iBookBase) {
     "use server";
     await update(id, updatedBook);
-    revalidatePath("/books");
+    revalidatePath("/en/adminBooks");
   }
 
   async function handleDeleteBook(bookId: number) {
     "use server";
     await deleteBook(bookId);
-    revalidatePath("/books");
+    revalidatePath("/en/adminBooks");
   }
 
   return (
@@ -81,7 +92,9 @@ export default async function Page({
               </div>
             ) : (
               <Suspense
-                key={query + currentPage + selectedGenre}
+                key={
+                  query + currentPage + selectedGenre + sortField + sortOrder
+                }
                 fallback={<TableSkeleton />}
               >
                 <BooksTable

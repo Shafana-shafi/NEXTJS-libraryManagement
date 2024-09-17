@@ -1,16 +1,18 @@
-import { fetchFilteredBooks } from "@/lib/actions";
+import { fetchFilteredBooks, fetchFilteredBooksForUsers } from "@/lib/actions";
 import BookCard from "./bookCard";
 
 export default async function Books({
   query,
   currentPage,
   genre,
+  memberId,
 }: {
   query: string;
   currentPage: number;
   genre: string;
+  memberId: number;
 }) {
-  const books = await fetchFilteredBooks(query, currentPage, genre);
+  const books = await fetchFilteredBooksForUsers(query, currentPage, genre);
   if (books.length === 0) return null;
 
   return (
@@ -26,6 +28,7 @@ export default async function Books({
             genre={book.genre}
             availableCopies={book.availableCopies}
             price={book.price}
+            memberId={memberId}
           />
         ))}
       </div>

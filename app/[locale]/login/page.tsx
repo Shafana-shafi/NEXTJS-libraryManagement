@@ -8,11 +8,10 @@ export default async function LoginPage() {
   const session = await getServerSession();
 
   if (session) {
-    const user = await getUserByEmail(session.user?.email as string);
-    if (user?.role === "user") {
+    if (session.user?.role === "user") {
       redirect("/userBooks");
     }
-    if (user?.role === "admin") {
+    if (session.user?.role === "admin") {
       redirect("/adminBooks");
     }
   }

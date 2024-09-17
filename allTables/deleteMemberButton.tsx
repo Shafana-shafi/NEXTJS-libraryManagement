@@ -12,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 interface DeleteMemberButtonProps {
@@ -27,6 +27,7 @@ export function DeleteMemberButton({
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleDelete = async () => {
     setIsPending(true);
@@ -35,6 +36,8 @@ export function DeleteMemberButton({
       toast({
         title: "Success",
         description: "Member deleted successfully",
+        className: "bg-green-400",
+        duration: 1000,
       });
       router.refresh();
     } catch (error) {
@@ -42,6 +45,7 @@ export function DeleteMemberButton({
         title: "Error",
         description: "Failed to delete. This member has unreturned books.",
         variant: "destructive",
+        duration: 1000,
       });
     } finally {
       setIsPending(false);

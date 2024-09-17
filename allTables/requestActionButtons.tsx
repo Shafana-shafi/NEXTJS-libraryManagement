@@ -48,7 +48,7 @@ export function RequestActionButtons({
       toast({
         title: "Request Accepted",
         description: `The request for book ${bookId} has been accepted.`,
-        duration: 2000,
+        duration: 1000,
         className: "bg-green-500",
       });
     } catch (error) {
@@ -57,7 +57,7 @@ export function RequestActionButtons({
         title: "Accept Failed",
         description: "Unable to accept the request. Please try again.",
         variant: "destructive",
-        duration: 2000,
+        duration: 1000,
       });
     }
     setIsPending(false);
@@ -70,7 +70,7 @@ export function RequestActionButtons({
       toast({
         title: "Request Declined",
         description: `The request for book ${bookId} has been declined.`,
-        duration: 2000,
+        duration: 1000,
         className: "bg-red-500",
       });
     } catch (error) {
@@ -79,7 +79,7 @@ export function RequestActionButtons({
         title: "Decline Failed",
         description: "Unable to decline the request. Please try again.",
         variant: "destructive",
-        duration: 2000,
+        duration: 1000,
       });
     }
     setIsPending(false);
@@ -92,7 +92,7 @@ export function RequestActionButtons({
       toast({
         title: "Book Returned",
         description: `The book ${bookId} has been successfully returned.`,
-        duration: 2000,
+        duration: 1000,
         className: "bg-blue-500",
       });
     } catch (error) {
@@ -101,7 +101,7 @@ export function RequestActionButtons({
         title: "Return Failed",
         description: "Unable to process the return. Please try again.",
         variant: "destructive",
-        duration: 2000,
+        duration: 1000,
       });
     }
     setIsPending(false);

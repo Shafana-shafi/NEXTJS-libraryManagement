@@ -16,7 +16,6 @@ const protectedRoutes = [
 ];
 
 const adminRoutes = ["/adminBooks", "/adminBooks/members"];
-
 const userRoutes = ["/userBooks"];
 
 // Custom function to extract session-like data from token
@@ -35,22 +34,16 @@ const getSessionFromToken = (token: any) => {
 const intlMiddleware = createIntlMiddleware(routing);
 
 export async function middleware(req: NextRequest) {
-  const intlResult = await intlMiddleware(req);
+  // First, extract the path and locale information
+  const pathname = req.nextUrl.pathname;
+  const pathnameWithoutLocale = pathname.replace(/^\/(?:kn|en)/, ""); // Assuming "kn" and "en" are your locales
 
-  // If the internationalization middleware redirected or responded, return that result
-  if (intlResult instanceof NextResponse) {
-    return intlResult;
-  }
-
+  // Check for user or admin route protection before running the i18n middleware
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const session = getSessionFromToken(token);
 
   console.log("session", session);
   console.log(token, "token");
-
-  // Extract the locale and path from the URL
-  const pathname = req.nextUrl.pathname;
-  const pathnameWithoutLocale = pathname.replace(/^\/(?:kn|en)/, "");
 
   // Check if the request is for a protected route
   if (
@@ -86,7 +79,7 @@ export async function middleware(req: NextRequest) {
       }
     }
 
-    // For user-specific routes, ensure the user has the correct role
+    // Ensure the user has the correct role for `/userBooks` routes
     if (pathnameWithoutLocale.startsWith("/userBooks")) {
       if (session.user.role !== "user" && session.user.role !== "admin") {
         const unauthorizedUrl = new URL(
@@ -98,7 +91,15 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // If the session is present and the user has the correct role, or if the route is not protected, allow the request to proceed
+  // After handling route checks, run the internationalization middleware
+  const intlResult = await intlMiddleware(req);
+
+  // If the internationalization middleware redirected or responded, return that result
+  if (intlResult instanceof NextResponse) {
+    return intlResult;
+  }
+
+  // If all checks passed and no redirection happened, allow the request to proceed
   return NextResponse.next();
 }
 
