@@ -1,12 +1,12 @@
 "use server";
 
-import mysql2 from "mysql2/promise";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/vercel-postgres";
+import { sql } from "@vercel/postgres";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../lib/authOptions";
 import { books, members, transactions } from "@/db/schema";
-import { eq, and, like, or, count } from "drizzle-orm";
+import { eq, and, ilike, or, count } from "drizzle-orm";
 import chalk from "chalk";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
@@ -17,10 +17,7 @@ import {
   RegisteredMemberInterface,
 } from "@/models/member.model";
 
-const poolConnection = mysql2.createPool({
-  uri: process.env.DATABASE_URL,
-});
-const db = drizzle(poolConnection);
+const db = drizzle(sql);
 
 export async function completeProfile(formData: FormData) {
   const rawFormData = {
@@ -29,26 +26,21 @@ export async function completeProfile(formData: FormData) {
   };
 
   try {
-    // Get the session
     const session = await getServerSession(authOptions);
     const email = session?.user?.email;
 
-    // Ensure email is defined and not null
     if (!email) {
       console.log("No email found in session");
       return { success: false, message: "No email found in session" };
     }
 
-    // Perform the transaction
-    await db.transaction(async (transaction) => {
-      // Check for existing members
+    const result = await db.transaction(async (transaction) => {
       const existingMembers = await transaction
         .select()
         .from(members)
         .where(eq(members.email, email))
-        .limit(10);
+        .limit(1);
 
-      // Update or handle missing user
       if (existingMembers.length > 0) {
         await transaction
           .update(members)
@@ -63,7 +55,8 @@ export async function completeProfile(formData: FormData) {
         return { success: false, message: "No such user" };
       }
     });
-    return { success: true, message: "Profile updated successfully" };
+
+    return result;
   } catch (error) {
     console.error("Error updating profile", error);
     return { success: false, message: "Error updating profile" };
@@ -72,25 +65,24 @@ export async function completeProfile(formData: FormData) {
 
 export async function register(memberData: RegisteredMemberInterface) {
   try {
-    // Check if user already exists
     const existingMembers = await db
       .select()
       .from(members)
-      .where(eq(members.email, memberData.email))
-      .execute();
+      .where(eq(members.email, memberData.email));
 
     if (existingMembers.length > 0) {
       return { success: false, message: "User already exists. Please log in." };
     }
+
     const password = memberData.password as string;
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert the new user into the database
-    await db
-      .insert(members)
-      .values({ ...memberData, password: hashedPassword })
-      .execute();
+    await db.insert(members).values({
+      ...memberData,
+      password: hashedPassword,
+      membershipStatus: "active",
+      role: "user",
+    });
 
     return { success: true, message: "Registration successful." };
   } catch (error) {
@@ -101,13 +93,13 @@ export async function register(memberData: RegisteredMemberInterface) {
     };
   }
 }
+
 export async function getUserByEmail(email: string) {
   try {
     const selectedMember = await db
       .select()
       .from(members)
-      .where(eq(members.email, email))
-      .execute();
+      .where(eq(members.email, email));
     return selectedMember.length > 0 ? selectedMember[0] : undefined;
   } catch (error) {
     console.error("Error retrieving member by email:", error);
@@ -121,133 +113,112 @@ export async function fetchFilteredTransactions(
 ) {
   const offset = (currentPage - 1) * 10;
   try {
-    // Get the session
     const session = await getServerSession(authOptions);
     const email = session?.user?.email;
 
-    // Ensure email is defined and not null
-    // if (!email) {
-    //   console.log("No email found in session");
-    //   return { success: false, message: "No email found in session" };
-    // }
+    if (!email) {
+      console.log("No email found in session");
+      return { success: false, message: "No email found in session" };
+    }
 
-    const user = await getUserByEmail(email!);
-    const userId = user?.id as number;
-    // Perform the transaction
-    const transList = await db.transaction(async (transaction) => {
-      // Check for existing members
-      const transactionList = await transaction
-        .select()
-        .from(transactions)
-        .where(eq(transactions.memberId, userId))
-        .limit(10)
-        .offset(offset);
-      return transactionList;
-    });
+    const user = await getUserByEmail(email);
+    const userId = user?.id;
+
+    const transList = await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.memberId, Number(userId)))
+      .limit(10)
+      .offset(offset);
+
     return transList;
   } catch (error) {
-    console.error("Error updating profile", error);
+    console.error("Error fetching transactions", error);
     throw error;
   }
 }
 
-async function checkUserRole(session: any) {
+export async function checkUserRole(session: any) {
   if (!session || !session.user || !session.user.membershipStatus) {
-    return null; // Return null if the user is not a basic member
+    return null;
   }
 
   const email = session.user.email;
   const user = await getUserByEmail(email);
 
-  if (user?.role === "admin") return "admin";
-  else return "user";
+  return user?.role === "admin" ? "admin" : "user";
 }
-
-export { checkUserRole };
 
 export async function hasProfileBeenUpdated(email: string) {
   try {
-    // Get the session
     const session = await getServerSession(authOptions);
-    const email = session?.user?.email as string;
+    const userEmail = session?.user?.email as string;
 
-    // Perform the transaction
-    const transList = await db.transaction(async (transaction) => {
-      // Check for existing members
-      const member = await transaction
-        .select()
-        .from(members)
-        .where(eq(members.email, email));
-      if (member[0].address !== null && member[0].phoneNumber !== null)
-        return true;
-      else return false;
-    });
-    return transList;
+    const member = await db
+      .select()
+      .from(members)
+      .where(eq(members.email, userEmail))
+      .limit(1);
+
+    return (
+      member.length > 0 &&
+      member[0].address !== null &&
+      member[0].phoneNumber !== null
+    );
   } catch (error) {
-    console.error("Error updating profile", error);
+    console.error("Error checking profile update status", error);
+    return false;
   }
 }
+
 export async function fetchPaginatedMembers(query: string): Promise<number> {
   try {
-    const totalPages = await db.transaction(async (transaction) => {
-      // Count the total number of books matching the query
-      const memberCountResult = await transaction
-        .select({ count: count() })
-        .from(members)
-        .where(
-          or(
-            like(members.firstName, `%${query}%`),
-            like(members.lastName, `%${query}%`),
-            like(members.email, `%${query}%`)
-          )
-        );
+    const memberCountResult = await db
+      .select({ count: count() })
+      .from(members)
+      .where(
+        or(
+          ilike(members.firstName, `%${query}%`),
+          ilike(members.lastName, `%${query}%`),
+          ilike(members.email, `%${query}%`)
+        )
+      );
 
-      // Extract count from the result
-      const memberCount = memberCountResult[0]?.count || 0;
-      const totalBooks = Number(memberCount);
+    const memberCount = memberCountResult[0]?.count || 0;
+    const totalMembers = Number(memberCount);
 
-      if (isNaN(totalBooks)) {
-        console.error("Invalid book count:", memberCount);
-        return 0;
-      }
+    if (isNaN(totalMembers)) {
+      console.error("Invalid member count:", memberCount);
+      return 0;
+    }
 
-      // Calculate the total number of pages
-      const totalPages = Math.ceil(totalBooks / 5);
-
-      return totalPages;
-    });
-
-    return totalPages;
+    return Math.ceil(totalMembers / 5);
   } catch (error) {
     console.error("Database Error:", error);
-    return 0; // Ensure that a valid number is returned in case of an error
+    return 0;
   }
 }
 
 export async function fetchFilteredMembers(query: string, currentPage: number) {
   const offset = (currentPage - 1) * 6;
   try {
-    // Perform the transaction
-    const allMembers = await db.transaction(async (transaction) => {
-      // Check for existing members
-      const filtereedMembers = await transaction
-        .select()
-        .from(members)
-        .where(
-          and(
-            eq(members.role, "user"),
-            or(
-              like(members.firstName, `%${query}%`),
-              like(members.lastName, `%${query}%`),
-              like(members.email, `%${query}%`)
-            )
+    const filteredMembers = await db
+      .select()
+      .from(members)
+      .where(
+        and(
+          eq(members.role, "user"),
+          or(
+            ilike(members.firstName, `%${query}%`),
+            ilike(members.lastName, `%${query}%`),
+            ilike(members.email, `%${query}%`)
           )
         )
-        .limit(6)
-        .offset(offset);
-      return filtereedMembers;
-    });
-    return allMembers;
+      )
+      .limit(6)
+      .offset(offset);
+
+    return filteredMembers;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch Members.");
@@ -256,29 +227,21 @@ export async function fetchFilteredMembers(query: string, currentPage: number) {
 
 export async function deleteMember(id: number): Promise<iMemberB | undefined> {
   try {
-    const result = await db.transaction(async (transaction) => {
-      const existingMembers = await transaction
-        .select()
-        .from(members)
-        .where(eq(members.id, id))
-        .limit(10);
+    const existingMembers = await db
+      .select()
+      .from(members)
+      .where(eq(members.id, id))
+      .limit(1);
 
-      if (existingMembers && existingMembers.length > 0) {
-        const deletedMember = await transaction
-          .delete(members)
-          .where(eq(members.id, id))
-          .execute();
+    if (existingMembers.length > 0) {
+      await db.delete(members).where(eq(members.id, id));
 
-        console.log(chalk.green("Member deleted successfully"));
-        return deletedMember;
-      } else {
-        console.log(
-          chalk.red("Member email ID not found, verify the email ID entered")
-        );
-        return undefined;
-      }
-    });
-    return;
+      console.log(chalk.green("Member deleted successfully"));
+      return existingMembers[0] as iMemberB;
+    } else {
+      console.log(chalk.red("Member ID not found, verify the ID entered"));
+      return undefined;
+    }
   } catch (error) {
     console.error("Error deleting member:", error);
     throw error;
@@ -287,41 +250,35 @@ export async function deleteMember(id: number): Promise<iMemberB | undefined> {
 
 export async function createUser(member: RegisteredMemberInterface) {
   try {
-    const result = await db.transaction(async (transaction) => {
-      const existingMembers = await transaction
-        .select()
-        .from(members)
-        .where(
-          and(
-            member.password
-              ? eq(members.password, member.password)
-              : eq(members.password, ""),
-            eq(members.email, member.email)
-          )
-        )
-        .limit(10);
-      if (existingMembers && existingMembers.length > 0) {
-        console.log(chalk.red("MEMBER ALREADY EXISTS"));
-        return;
-      } else {
-        const updatedMember: RegisteredMemberInterface = {
+    const existingMembers = await db
+      .select()
+      .from(members)
+      .where(eq(members.email, member.email))
+      .limit(1);
+
+    if (existingMembers.length > 0) {
+      console.log(chalk.red("MEMBER ALREADY EXISTS"));
+      return;
+    } else {
+      const hashedPassword = await bcrypt.hash(member.password!, 10);
+      const insertedMember = await db
+        .insert(members)
+        .values({
           ...member,
-          id: 0, // Assuming the database will autogenerate the ID.
+          password: hashedPassword,
           membershipStatus: "active",
-        };
-        const hashedPassword = await bcrypt.hash(member.password!, 10);
-        await transaction
-          .insert(members)
-          .values({ ...updatedMember, password: hashedPassword });
-        console.log(chalk.green("Member Registered successfully\n"));
-        return updatedMember;
-      }
-    });
-    return result;
+          role: "user",
+        })
+        .returning();
+
+      console.log(chalk.green("Member Registered successfully\n"));
+      return insertedMember[0];
+    }
   } catch (error) {
     console.error("Error Adding a Member", error);
   }
 }
+
 export async function getUserByName(firstName: string, lastName: string) {
   try {
     const selectedMember = await db
@@ -330,10 +287,11 @@ export async function getUserByName(firstName: string, lastName: string) {
       .where(
         and(eq(members.firstName, firstName), eq(members.lastName, lastName))
       )
-      .execute();
+      .limit(1);
+
     return selectedMember.length > 0 ? selectedMember[0] : undefined;
   } catch (error) {
-    console.error("Error retrieving member by email:", error);
+    console.error("Error retrieving member by name:", error);
     throw error;
   }
 }
@@ -344,10 +302,11 @@ export async function getUserById(id: number) {
       .select()
       .from(members)
       .where(eq(members.id, id))
-      .execute();
+      .limit(1);
+
     return selectedMember.length > 0 ? selectedMember[0] : undefined;
   } catch (error) {
-    console.error("Error retrieving member by email:", error);
+    console.error("Error retrieving member by ID:", error);
     throw error;
   }
 }
@@ -358,29 +317,22 @@ export async function updateMember(id: number, data: iMemberBase) {
       .select()
       .from(members)
       .where(eq(members.id, id))
-      .execute();
-    console.log(id, "id");
-    if (!existingMembers || existingMembers.length === 0) {
-      console.log("---NO BOOKS FOUND---");
+      .limit(1);
+
+    if (existingMembers.length === 0) {
+      console.log("---NO MEMBER FOUND---");
       return null;
     }
-    const existingBook = existingMembers[0];
 
-    const updatedMember = {
-      ...existingBook,
-      ...data,
-    };
+    const existingMember = existingMembers[0];
+    const updatedMember = { ...existingMember, ...data };
 
-    await db
-      .update(members)
-      .set(updatedMember)
-      .where(eq(members.id, id))
-      .execute();
+    await db.update(members).set(updatedMember).where(eq(members.id, id));
 
-    console.log("---BOOK UPDATED SUCCESSFULLY---");
-    return { ...existingBook, ...updatedMember };
+    console.log("---MEMBER UPDATED SUCCESSFULLY---");
+    return updatedMember;
   } catch (error) {
-    console.error("Error updating book:", error);
+    console.error("Error updating member:", error);
     throw error;
   }
 }

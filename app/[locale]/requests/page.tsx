@@ -14,7 +14,7 @@ import {
   updateAvailableBookCopiesOnIssue,
   updateAvailableBookCopiesOnReturn,
 } from "@/repositories/book.repository";
-import RequestsTable, { Request } from "@/allTables/requestTable";
+import RequestsTable from "@/allTables/requestTable";
 import { revalidatePath } from "next/cache";
 import NavBar from "@/ui/components/navBar";
 import SideNav from "@/ui/components/sidenav";
@@ -50,7 +50,7 @@ export default async function RequestsPage({
     );
   }
 
-  const isAdmin = user.role === "admin";
+  const isAdmin = session.user.role === "admin";
   const query = searchParams.query || "";
   const currentPage = Number(searchParams.page) || 1;
   const filters = searchParams.filters ? JSON.parse(searchParams.filters) : {};
@@ -60,7 +60,12 @@ export default async function RequestsPage({
 
   const requests = isAdmin
     ? await fetchAllRequests(query, currentPage, filters)
-    : await fetchFilteredUserRequests(user.id, query, currentPage, filters);
+    : await fetchFilteredUserRequests(
+        Number(session.user.id),
+        query,
+        currentPage,
+        filters
+      );
 
   const today = new Date();
 

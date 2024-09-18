@@ -24,7 +24,7 @@ interface RequestActionButtonsProps {
     bookId: number,
     requestId: number
   ) => Promise<void>; // Add handler for return action
-  returnDate: Date | null;
+  returnDate: string | null;
 }
 
 export function RequestActionButtons({

@@ -1,7 +1,7 @@
 "use server";
 
-import mysql2 from "mysql2/promise";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/vercel-postgres";
+import { sql } from "@vercel/postgres";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./authOptions";
@@ -20,12 +20,9 @@ import {
   SQL,
 } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { MySqlColumn } from "drizzle-orm/mysql-core/columns";
+import { PgColumn } from "drizzle-orm/pg-core";
 
-const poolConnection = mysql2.createPool({
-  uri: process.env.DATABASE_URL,
-});
-const db = drizzle(poolConnection);
+const db = drizzle(sql);
 
 export async function completeProfile(formData: FormData) {
   const rawFormData = {
@@ -111,7 +108,7 @@ export async function fetchFilteredBooks(
 
     // Apply sorting if a sort field is provided
     if (sort && sort in books) {
-      const sortField = books[sort as keyof typeof books] as MySqlColumn;
+      const sortField = books[sort as keyof typeof books] as PgColumn;
       const orderBy: SQL = order === "desc" ? desc(sortField) : asc(sortField);
       new_query = baseQuery.orderBy(orderBy);
       allBooks = await new_query;
@@ -158,6 +155,7 @@ export async function fetchFilteredBooksForUsers(
     throw new Error("Failed to fetch books.");
   }
 }
+
 export async function register(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -183,7 +181,6 @@ export async function register(formData: FormData) {
     await db
       .insert(members)
       .values({
-        id: 0,
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -204,6 +201,7 @@ export async function register(formData: FormData) {
     };
   }
 }
+
 export async function getUserByEmail(email: string) {
   try {
     const selectedMember = await db

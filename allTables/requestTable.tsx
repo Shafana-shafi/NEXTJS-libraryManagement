@@ -12,18 +12,18 @@ import { RequestActionButtons } from "./requestActionButtons";
 import { authOptions } from "@/lib/authOptions";
 import { strict } from "assert";
 
-export interface Request {
+type Request = {
   id: number;
   memberId: number;
   bookId: number;
-  issuedDate: Date | null;
-  requestDate: Date;
-  returnDate: Date | null;
+  requestDate: string;
   status: string;
+  issuedDate: string | null;
+  returnDate: string | null;
   memberFirstName: string;
   memberLastName: string;
   bookTitle: string;
-}
+};
 
 interface RequestsTableProps {
   requests: Request[];
@@ -116,7 +116,11 @@ export default async function RequestsTable({
                       onAccept={onAccept}
                       onDecline={onDecline}
                       onReturn={onReturn}
-                      returnDate={request.returnDate}
+                      returnDate={
+                        request.returnDate
+                          ? request.returnDate.toString()
+                          : null
+                      }
                     />
                   </div>
                 )}
@@ -186,7 +190,11 @@ export default async function RequestsTable({
                           status={request.status}
                           onAccept={onAccept}
                           onDecline={onDecline}
-                          returnDate={request.returnDate}
+                          returnDate={
+                            request.returnDate
+                              ? request.returnDate.toString()
+                              : null
+                          }
                           onReturn={onReturn}
                         />
                       </TableCell>

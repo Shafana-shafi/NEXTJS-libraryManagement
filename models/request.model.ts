@@ -3,6 +3,7 @@ export interface iRequestBase {
   memberId: number;
   requestDate: Date;
   issuedDate: Date | null;
+  returnDate: Date | null;
   status: string;
 }
 

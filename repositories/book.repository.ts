@@ -1,7 +1,7 @@
 "use server";
 
-import mysql2 from "mysql2/promise";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/vercel-postgres";
+import { sql } from "@vercel/postgres";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../lib/authOptions";
@@ -12,10 +12,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { iBook, iBookB, iBookBase } from "@/models/book.model";
 
-const poolConnection = mysql2.createPool({
-  uri: process.env.DATABASE_URL,
-});
-const db = drizzle(poolConnection);
+const db = drizzle(sql);
 
 /**
  * Creates a new book or updates an existing one if it already exists.
@@ -152,6 +149,7 @@ export async function fetchFilteredBooks(query: string, currentPage: number) {
     throw new Error("Failed to fetch books.");
   }
 }
+
 export async function register(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -177,7 +175,6 @@ export async function register(formData: FormData) {
     await db
       .insert(members)
       .values({
-        id: 0,
         firstName: firstName,
         lastName: lastName,
         email: email,
@@ -198,6 +195,7 @@ export async function register(formData: FormData) {
     };
   }
 }
+
 export async function getUserByEmail(email: string) {
   try {
     const selectedMember = await db
@@ -223,12 +221,12 @@ export async function fetchFilteredTransactions(
     const email = session?.user?.email;
 
     // Ensure email is defined and not null
-    // if (!email) {
-    //   console.log("No email found in session");
-    //   return { success: false, message: "No email found in session" };
-    // }
+    if (!email) {
+      console.log("No email found in session");
+      return { success: false, message: "No email found in session" };
+    }
 
-    const user = await getUserByEmail(email!);
+    const user = await getUserByEmail(email);
     const userId = user?.id as number;
     // Perform the transaction
     const transList = await db.transaction(async (transaction) => {
@@ -284,6 +282,7 @@ export async function fetchPaginatedBooks(query: string): Promise<number> {
     return 0; // Ensure that a valid number is returned in case of an error
   }
 }
+
 /**
  * Updates an existing book by title.
  * @param {string} title - The title of the book to update.
@@ -359,10 +358,7 @@ export async function deleteBook(id: number): Promise<iBookB | undefined> {
 }
 
 export async function getBookById(id: number) {
-  const selectedBook = await db
-    .select()
-    .from(books)
-    .where(eq(books.id, Number(id)));
+  const selectedBook = await db.select().from(books).where(eq(books.id, id));
 
   return selectedBook[0];
 }
@@ -393,6 +389,7 @@ export async function updateAvailableBookCopiesOnIssue(id: number) {
     return 0; // Ensure that a valid number is returned in case of an error
   }
 }
+
 export async function updateAvailableBookCopiesOnReturn(id: number) {
   try {
     const updatedbook = await db.transaction(async (transaction) => {
