@@ -22,7 +22,9 @@ import {
 import bcrypt from "bcryptjs";
 import { PgColumn } from "drizzle-orm/pg-core";
 
-const db = drizzle(sql);
+import * as schema from "../db/schema";
+
+export const db = drizzle(sql, { schema });
 
 export async function completeProfile(formData: FormData) {
   const rawFormData = {

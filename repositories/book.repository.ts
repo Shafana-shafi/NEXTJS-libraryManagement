@@ -11,9 +11,9 @@ import chalk from "chalk";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { iBook, iBookB, iBookBase } from "@/models/book.model";
+import * as schema from "../db/schema";
 
-const db = drizzle(sql);
-
+export const db = drizzle(sql, { schema });
 /**
  * Creates a new book or updates an existing one if it already exists.
  * @param {iBookBase} data - The book data to create.

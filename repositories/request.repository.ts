@@ -20,8 +20,9 @@ import chalk from "chalk";
 import { iBook, iBookB, iBookBase } from "@/models/book.model";
 import { iRequest, iRequestBase } from "@/models/request.model";
 import { PgSelect } from "drizzle-orm/pg-core";
+import * as schema from "../db/schema";
 
-const db = drizzle(sql);
+export const db = drizzle(sql, { schema });
 
 /**
  * Creates a new request or updates an existing one if it already exists.
