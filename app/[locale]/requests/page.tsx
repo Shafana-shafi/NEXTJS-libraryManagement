@@ -152,12 +152,12 @@ export default async function RequestsPage({
                   key={query + currentPage + JSON.stringify(filters)}
                   fallback={<TableSkeleton />}
                 >
-                  <RequestsTable
+                  {/* <RequestsTable
                     requests={requests}
                     onAccept={handleAccept}
                     onDecline={handleDecline}
                     onReturn={handleReturn}
-                  />
+                  /> */}
                 </Suspense>
               </div>
             )}

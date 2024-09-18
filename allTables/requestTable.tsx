@@ -16,10 +16,10 @@ type Request = {
   id: number;
   memberId: number;
   bookId: number;
-  requestDate: string;
+  requestDate: Date; // Changed from string to Date
   status: string;
-  issuedDate: string | null;
-  returnDate: string | null;
+  issuedDate: Date | null; // Changed from string | null to Date | null
+  returnDate: Date | null; // Changed from string | null to Date | null
   memberFirstName: string;
   memberLastName: string;
   bookTitle: string;
