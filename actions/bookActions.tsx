@@ -64,7 +64,7 @@ export function BookActionButtons({
       toast({
         title: "Success",
         description: "Book deleted successfully",
-        className: "bg-green-500 text-white",
+        className: "bg-green-600 text-white",
         duration: 1000, // 2 seconds
       });
       router.refresh(); // Optional: refresh the page after success

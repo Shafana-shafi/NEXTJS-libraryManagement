@@ -53,7 +53,12 @@ export default async function Page({
   const sortOrder = searchParams?.order || "asc";
 
   const genres = await getDistinctGenres();
-  const totalPages = await fetchPaginatedBooks(query, selectedGenre);
+  const totalPages = await fetchPaginatedBooks(
+    query,
+    selectedGenre,
+    sortField,
+    sortOrder
+  );
   const books = await fetchFilteredBooks(
     query,
     currentPage,
@@ -61,7 +66,6 @@ export default async function Page({
     sortField,
     sortOrder
   );
-
   async function handleEditBook(id: number, updatedBook: iBookBase) {
     "use server";
     await update(id, updatedBook);

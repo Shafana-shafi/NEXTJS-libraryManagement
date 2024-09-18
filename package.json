@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@edgestore/react": "^0.2.2",
+    "@edgestore/server": "^0.2.2",
     "@heroicons/react": "^2.1.5",
     "@hookform/resolvers": "^3.9.0",
     "@next/font": "^14.2.5",
@@ -28,6 +30,7 @@
     "@radix-ui/react-toast": "^1.2.1",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
+    "cloudinary": "^2.5.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.33.0",
@@ -38,8 +41,10 @@
     "mysql2": "^3.11.0",
     "next": "^14.2.7",
     "next-auth": "^4.24.7",
+    "next-cloudinary": "^6.13.0",
     "next-i18n-router": "^5.5.1",
     "next-intl": "^3.19.1",
+    "pgloader": "^1.1.6",
     "react": "^18",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",

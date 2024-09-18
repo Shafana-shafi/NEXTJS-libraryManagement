@@ -24,6 +24,7 @@ export const bookSchema = z.object({
     .regex(/^\d{10}$/, "ISBN must be a 10-digit number"),
   pages: z.number().min(1, "Pages must be greater than 0"),
   totalCopies: z.number().min(1, "Total Copies must be greater than 0"),
+  price: z.number().min(1, "price must be greater than 0"),
 });
 
 export const memberSchema = z.object({

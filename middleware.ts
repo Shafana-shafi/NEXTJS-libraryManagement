@@ -15,7 +15,11 @@ const protectedRoutes = [
   "/adminBooks/addMember",
 ];
 
-const adminRoutes = ["/adminBooks", "/adminBooks/members"];
+const adminRoutes = [
+  "/adminBooks",
+  "/adminBooks/members",
+  "/adminBooks/addBook",
+];
 const userRoutes = ["/userBooks"];
 
 // Custom function to extract session-like data from token

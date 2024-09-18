@@ -1,7 +1,9 @@
 "use client";
+
 import "../globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/toaster";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 
 interface Props {
   children: React.ReactNode;
@@ -10,13 +12,15 @@ interface Props {
 const RootLayout: React.FC<Props> = ({ children }) => {
   return (
     <html lang="en">
-      <head />
       <body>
-        <main>
-          <SessionProvider>{children}</SessionProvider>{" "}
-          {/* No need to pass session */}
-          <Toaster />
-        </main>
+        <SessionProvider>
+          <EdgeStoreProvider>
+            <main>
+              {children}
+              <Toaster />
+            </main>
+          </EdgeStoreProvider>
+        </SessionProvider>
       </body>
     </html>
   );

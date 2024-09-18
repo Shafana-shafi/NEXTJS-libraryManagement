@@ -29,6 +29,7 @@ export async function handleAddBook(data: iBook) {
     if (result) {
       redirect("/userBooks");
     }
+    return { success: true, error: "Failed to add book" };
   } catch (error) {
     console.error("Failed to add book:", error);
     return { success: false, error: "Failed to add book" };

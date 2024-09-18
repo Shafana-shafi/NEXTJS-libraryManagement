@@ -1,0 +1,14 @@
+version: "3"
+services:
+  lms_pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: lms_pmas
+    restart: unless-stopped
+    environment:
+      PMA_HOST:
+      PMA_PORT: 3306
+      PMA_USER: admin
+      PMA_PASSWORD: MAthAWS2024
+      # PMA_ARBITRARY: 1
+    ports:
+      - 8081:80

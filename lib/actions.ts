@@ -271,7 +271,9 @@ export async function fetchFilteredTransactions(
 
 export async function fetchPaginatedBooks(
   query: string,
-  genre: string
+  genre: string,
+  sort?: string,
+  order: "asc" | "desc" = "asc"
 ): Promise<number> {
   try {
     const totalPages = await db.transaction(async (transaction) => {
@@ -290,7 +292,10 @@ export async function fetchPaginatedBooks(
               or(
                 like(books.title, `%${query}%`),
                 like(books.isbnNo, `%${query}%`),
-                like(books.publisher, `%${query}%`)
+                like(books.publisher, `%${query}%`),
+                like(books.author, `%${query}%`),
+                like(books.price, `%${query}%`),
+                like(books.availableCopies, `%${query}%`)
               ),
               eq(books.genre, genre)
             )

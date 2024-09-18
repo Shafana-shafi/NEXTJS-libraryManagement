@@ -61,7 +61,7 @@ export async function createBook(book: iBook): Promise<iBookB | undefined> {
       const newBookData: iBookB = {
         ...book,
         availableCopies: book.totalCopies,
-        price: 0,
+        price: book.price,
       };
 
       await db.insert(books).values(newBookData).execute();

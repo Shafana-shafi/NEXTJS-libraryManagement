@@ -1,0 +1,27 @@
+LOAD DATABASE
+     FROM mysql://user:user_password@localhost:3306/library_db
+     INTO postgres://default:VQW8aM6Jnjbzep-mute-bread-a7owxvwz.ap-southeast-2.aws.neon.tech:5432/verceldb?sslmode=require
+
+  WITH include no tables like 'log_*'
+  SET work_mem to '16MB', maintenance_work_mem to '128MB';
+
+ALTER SCHEMA 'main' RENAME TO 'public';
+
+BEFORE LOAD
+    SET work_mem TO '16MB';
+
+CREATE SCHEMA public;
+
+-- You might need to customize these depending on your schema and table names
+-- Adjust the following to fit your schema and data needs
+ALTER TABLE "your_table_name" ADD COLUMN new_column_name TYPE;
+
+-- Add other transformation rules if needed
+
+-- Uncomment the following line to test the migration without making changes
+-- REPORT NO DATA
+
+-- Uncomment the following line to test the migration with limited rows
+-- LIMIT TO 10 ROWS
+
+-- Define your data transformation rules if necessary
