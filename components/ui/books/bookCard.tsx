@@ -40,8 +40,9 @@ export default function BookCard({
       const request = {
         bookId: Number(id),
         memberId: Number(memberId),
-        issuedDate: null,
         requestDate: new Date(),
+        issuedDate: null,
+        returnDate: null,
         status: "requested",
       };
       await createRequest(request);
