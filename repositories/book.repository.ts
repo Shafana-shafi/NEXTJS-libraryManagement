@@ -39,7 +39,7 @@ export async function createBook(book: iBook): Promise<iBookB | undefined> {
         .set({
           totalCopies: updatedTotalCopies,
           availableCopies: updatedAvailableCopies,
-          imageUrl: null,
+          imgUrl: null,
         })
         .where(and(eq(books.isbnNo, book.isbnNo), eq(books.title, book.title)))
         .execute();
