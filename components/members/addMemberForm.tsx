@@ -36,7 +36,7 @@ const memberSchema = z.object({
     .string()
     .min(6, "Password must be at least 6 characters")
     .nullable(),
-  role: z.enum(["user", "admin"]),
+  role: z.string(),
 });
 
 type MemberFormData = z.infer<typeof memberSchema>;
@@ -59,7 +59,6 @@ export default function AddMemberForm() {
   const onSubmit = async (data: MemberFormData) => {
     const result = await handleAddMember({
       ...data,
-      id: 0,
       membershipStatus: "active",
     });
     if (result && !result.success) {

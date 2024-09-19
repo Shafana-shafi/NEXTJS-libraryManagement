@@ -1,5 +1,3 @@
-"use server";
-
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import type { NextAuthOptions } from "next-auth";
@@ -21,9 +19,9 @@ import {
 } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { PgColumn } from "drizzle-orm/pg-core";
+import * as schema from "@/db/schema"; // Ensure correct path
 
-import * as schema from "../db/schema";
-
+// Initialize drizzle with the SQL client and schema
 export const db = drizzle(sql, { schema });
 
 export async function completeProfile(formData: FormData) {
@@ -33,40 +31,36 @@ export async function completeProfile(formData: FormData) {
   };
 
   try {
-    // Get the session
     const session = await getServerSession(authOptions);
     const email = session?.user?.email;
 
-    // Ensure email is defined and not null
     if (!email) {
       console.log("No email found in session");
       return { success: false, message: "No email found in session" };
     }
 
-    // Perform the transaction
     await db.transaction(async (transaction) => {
-      // Check for existing members
       const existingMembers = await transaction
         .select()
-        .from(members)
-        .where(eq(members.email, email))
+        .from(schema.members)
+        .where(eq(schema.members.email, email))
         .limit(10);
 
-      // Update or handle missing user
       if (existingMembers.length > 0) {
         await transaction
-          .update(members)
+          .update(schema.members)
           .set({
             address: rawFormData.address as string,
             phoneNumber: rawFormData.phoneNumber as string,
           })
-          .where(eq(members.email, email));
+          .where(eq(schema.members.email, email));
         return { success: true, message: "Profile updated successfully" };
       } else {
         console.log("No such user");
         return { success: false, message: "No such user" };
       }
     });
+
     return { success: true, message: "Profile updated successfully" };
   } catch (error) {
     console.error("Error updating profile", error);
@@ -98,9 +92,7 @@ export async function fetchFilteredBooks(
             like(books.title, `%${query}%`),
             like(books.isbnNo, `%${query}%`),
             like(books.publisher, `%${query}%`),
-            like(books.author, `%${query}%`),
-            like(books.availableCopies, `%${query}%`),
-            like(books.price, `%${query}%`)
+            like(books.author, `%${query}%`)
           ),
           genre !== "all" ? eq(books.genre, genre) : undefined
         )
@@ -293,9 +285,7 @@ export async function fetchPaginatedBooks(
                 like(books.title, `%${query}%`),
                 like(books.isbnNo, `%${query}%`),
                 like(books.publisher, `%${query}%`),
-                like(books.author, `%${query}%`),
-                like(books.price, `%${query}%`),
-                like(books.availableCopies, `%${query}%`)
+                like(books.author, `%${query}%`)
               ),
               eq(books.genre, genre)
             )

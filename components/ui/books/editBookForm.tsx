@@ -29,6 +29,7 @@ const initialState: FormState = {
   totalCopies: 0,
   availableCopies: 0,
   price: 0,
+  imgUrl: null,
 };
 
 function formAction(bookid: number) {
@@ -49,6 +50,7 @@ function formAction(bookid: number) {
         totalCopies: parseInt(bookData.totalCopies as string, 10),
         availableCopies: parseInt(bookData.availableCopies as string, 10),
         price: parseInt(bookData.price as string, 10),
+        imgUrl: "",
       };
 
       const response = await update(bookid, updatedBook);
@@ -87,6 +89,7 @@ export function EditBookForm({
     totalCopies: book.totalCopies,
     availableCopies: book.availableCopies,
     price: book.price,
+    imgUrl: "",
   });
 
   const [message, setMessage] = useState<string | null>(null);

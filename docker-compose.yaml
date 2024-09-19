@@ -1,14 +1,21 @@
-version: "3"
 services:
-  lms_pma:
-    image: phpmyadmin/phpmyadmin
-    container_name: lms_pmas
-    restart: unless-stopped
+  postgres:
+    image: postgres
     environment:
-      PMA_HOST:
-      PMA_PORT: 3306
-      PMA_USER: admin
-      PMA_PASSWORD: MAthAWS2024
-      # PMA_ARBITRARY: 1
+      POSTGRES_PASSWORD: password
+    # Expose the Postgres port to the host machine,
+    # so you can inspect and administrate it
     ports:
-      - 8081:80
+      - "54320:5432"
+  pg_proxy:
+    image: ghcr.io/neondatabase/wsproxy:latest
+    environment:
+      APPEND_PORT: "postgres:5432"
+      ALLOW_ADDR_REGEX: ".*"
+      LOG_TRAFFIC: "true"
+    ports:
+      # Expose the WebSocket proxy port to the host machine,
+      # this is where @vercel/postgres will connect
+      - "54330:80"
+    depends_on:
+      - postgres

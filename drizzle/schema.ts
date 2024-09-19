@@ -21,7 +21,7 @@ export const books = pgTable(
     totalCopies: integer("totalCopies").notNull(),
     availableCopies: integer("availableCopies").notNull(),
     price: real("price").notNull(),
-    imgUrl: varchar("imgUrl"),
+    imgUrl: varchar("imgUrl", { length: 200 }),
   },
   (table) => {
     return {
@@ -56,7 +56,7 @@ export const transactions = pgTable("transactions", {
   memberId: integer("memberid")
     .notNull()
     .references(() => members.id),
-  bookId: integer("bookId")
+  bookId: integer("bookid")
     .notNull()
     .references(() => books.id),
   borrowDate: date("borrowDate").notNull(),

@@ -28,14 +28,14 @@ export default function LoginForm() {
   useEffect(() => {
     const role = async () => {
       if (sessionStatus === "authenticated") {
-        const user = await getUserByEmail(session.user?.email as string);
-        if (user === undefined) {
+        const userRole = session.user.role;
+        if (userRole === undefined) {
           return;
         } else {
-          if (user?.role === "user") {
+          if (userRole === "user") {
             router.replace("/userBooks");
           }
-          if (user?.role === "admin") {
+          if (userRole === "admin") {
             router.replace("/adminBooks");
           }
         }

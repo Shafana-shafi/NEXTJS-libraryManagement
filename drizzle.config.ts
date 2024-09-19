@@ -1,15 +1,13 @@
 import { defineConfig } from "drizzle-kit";
 export default defineConfig({
-  schema: "/root/inMemory/Library_app/library/db/schema.ts",
+  schema: "/root/inMemory/Library_app/library/drizzle/schema.ts",
   out: "./src/drizzle/migrations",
-  dialect: "mysql",
+  dialect: "postgresql",
   dbCredentials: {
     url:
-      process.env.DATABASE_URL ??
+      process.env.POSTGRES_URL ??
       (() => {
         throw new Error("DATABASE_URL is not set");
       })(), // throw an error if undefined
   },
-  verbose: true,
-  strict: true,
 });

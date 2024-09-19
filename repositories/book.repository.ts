@@ -1,5 +1,3 @@
-"use server";
-
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import type { NextAuthOptions } from "next-auth";
@@ -41,6 +39,7 @@ export async function createBook(book: iBook): Promise<iBookB | undefined> {
         .set({
           totalCopies: updatedTotalCopies,
           availableCopies: updatedAvailableCopies,
+          imageUrl: null,
         })
         .where(and(eq(books.isbnNo, book.isbnNo), eq(books.title, book.title)))
         .execute();
@@ -49,6 +48,7 @@ export async function createBook(book: iBook): Promise<iBookB | undefined> {
         ...existingBook,
         totalCopies: updatedTotalCopies,
         availableCopies: updatedAvailableCopies,
+        imgUrl: null,
       };
 
       console.log("---BOOK ALREADY EXISTED, INCREASED NUMBER OF COPIES---");
@@ -59,8 +59,9 @@ export async function createBook(book: iBook): Promise<iBookB | undefined> {
         ...book,
         availableCopies: book.totalCopies,
         price: book.price,
+        imgUrl: book.imgUrl,
       };
-
+      console.log(book.imgUrl, "img url in repo");
       await db.insert(books).values(newBookData).execute();
 
       console.log(chalk.green("Book added successfully\n"));
@@ -331,7 +332,7 @@ export async function update(
   }
 }
 
-export async function deleteBook(id: number): Promise<iBookB | undefined> {
+export async function deleteBook(id: number) {
   try {
     // Check if the book exists
     const existingBooks = await db
@@ -363,7 +364,7 @@ export async function getBookById(id: number) {
   return selectedBook[0];
 }
 
-export async function getAllBooks(): Promise<Array<iBookB>> {
+export async function getAllBooks() {
   const allBooks = await db.select().from(books);
   return allBooks;
 }

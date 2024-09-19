@@ -30,6 +30,7 @@ export type Book = iBookBase & {
   id: number;
   availableCopies: number;
   price: number;
+  imgUrl: string | null;
 };
 
 export default function BooksTable({

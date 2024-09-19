@@ -25,7 +25,19 @@ type userRole = {
 type adminRole = {
   admin: 5050;
 };
-export interface RegisteredMemberInterface extends iMemberB {
+export interface newMember {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string | null;
+  address: string | null;
+  // dateOfBirth: string;
+  // membershipStartDate: string;
+  // membershipEndDate: string;
+  membershipStatus: string;
+}
+
+export interface RegisteredMemberInterface extends newMember {
   password: string | null;
   role: string;
 }

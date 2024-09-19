@@ -1,5 +1,3 @@
-"use server";
-
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import type { NextAuthOptions } from "next-auth";
@@ -15,6 +13,7 @@ import {
   inArray,
   ilike,
   asc,
+  like,
 } from "drizzle-orm";
 import chalk from "chalk";
 import { iBook, iBookB, iBookBase } from "@/models/book.model";
@@ -23,7 +22,7 @@ import { PgSelect } from "drizzle-orm/pg-core";
 import * as schema from "../db/schema";
 
 export const db = drizzle(sql, { schema });
-
+console.log("hi");
 /**
  * Creates a new request or updates an existing one if it already exists.
  * @param {iRequestBase} request - The request data to create.
@@ -39,13 +38,10 @@ export async function createRequest(request: iRequestBase) {
       returnDate: request.returnDate ? request.returnDate.toISOString() : null,
     };
 
-    const result = await db
-      .insert(requests)
-      .values(requestToInsert)
-      .returning();
+    const result = await db.insert(requests).values(requestToInsert).execute();
 
     console.log(chalk.green("Request added successfully\n"));
-    return result[0];
+    return result;
   } catch (error) {
     console.error("Error creating request:", error);
     throw error;
@@ -239,10 +235,10 @@ export async function fetchAllRequests(
         ilike(members.firstName, `%${query}%`),
         ilike(members.lastName, `%${query}%`),
         ilike(books.title, `%${query}%`),
-        ilike(requests.bookId, `%${query}%`),
-        ilike(requests.requestDate, `%${query}%`),
-        ilike(requests.issuedDate ?? "", `%${query}%`),
-        ilike(requests.returnDate ?? "", `%${query}%`),
+        // like(requests.bookId, `%${query}%`),
+        // like(requests.requestDate, `%${query}%`),
+        // like(requests.issuedDate, `%${query}%`),
+        // like(requests.returnDate, `%${query}%`),
         ilike(requests.status, `%${query}%`)
       ),
     ];
@@ -251,21 +247,21 @@ export async function fetchAllRequests(
       conditions.push(inArray(requests.status, filters.status));
     }
 
-    if (filters.requestDate) {
-      conditions.push(
-        eq(requests.requestDate, filters.requestDate.toISOString())
-      );
-    }
-    if (filters.issuedDate) {
-      conditions.push(
-        eq(requests.issuedDate, filters.issuedDate.toDateString())
-      );
-    }
-    if (filters.returnedDate) {
-      conditions.push(
-        eq(requests.returnDate, filters.returnedDate.toDateString())
-      );
-    }
+    // if (filters.requestDate) {
+    //   conditions.push(
+    //     eq(requests.requestDate, filters.requestDate.toISOString())
+    //   );
+    // }
+    // if (filters.issuedDate) {
+    //   conditions.push(
+    //     eq(requests.issuedDate, filters.issuedDate.toDateString())
+    //   );
+    // }
+    // if (filters.returnedDate) {
+    //   conditions.push(
+    //     eq(requests.returnDate, filters.returnedDate.toDateString())
+    //   );
+    // }
 
     baseQuery = baseQuery.where(and(...conditions));
 
@@ -330,104 +326,70 @@ export async function fetchFilteredUserRequests(
         .from(requests)
         .innerJoin(members, eq(requests.memberId, members.id))
         .innerJoin(books, eq(requests.bookId, books.id))
-        .$dynamic();
-
-      const conditions = [
-        eq(requests.memberId, memberId),
-        or(
-          ilike(members.firstName, `%${query}%`),
-          ilike(members.lastName, `%${query}%`),
-          ilike(books.title, `%${query}%`),
-          ilike(requests.bookId, `%${query}%`),
-          ilike(requests.requestDate, `%${query}%`),
-          ilike(requests.issuedDate ?? "", `%${query}%`),
-          ilike(requests.returnDate ?? "", `%${query}%`),
-          ilike(requests.status, `%${query}%`)
-        ),
-      ];
-
-      if (filters.status && filters.status.length > 0) {
-        conditions.push(inArray(requests.status, filters.status));
-      }
-
-      if (filters.requestDate) {
-        conditions.push(
-          eq(requests.requestDate, filters.requestDate.toISOString())
+        .where(
+          and(
+            or(
+              ilike(members.firstName, `%${query}%`),
+              ilike(members.lastName, `%${query}%`),
+              ilike(books.title, `%${query}%`),
+              ilike(requests.status, `%${query}%`)
+            ),
+            eq(requests.memberId, memberId)
+          )
         );
-      }
-      if (filters.issuedDate) {
-        conditions.push(
-          eq(requests.issuedDate, filters.issuedDate.toISOString())
-        );
-      }
-      if (filters.returnedDate) {
-        conditions.push(
-          eq(requests.returnDate, filters.returnedDate.toISOString())
-        );
-      }
 
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const lastWeek = new Date(today);
-      lastWeek.setDate(lastWeek.getDate() - 7);
+      // Build conditions
+      // const conditions = [
+      //   eq(requests.memberId, memberId),
+      //   or(
+      //     ilike(members.firstName, `%${query}%`),
+      //     ilike(members.lastName, `%${query}%`),
+      //     ilike(books.title, `%${query}%`),
+      //     ilike(requests.status, `%${query}%`)
+      //   ),
+      // ];
 
-      // if (filters.requestDateRange) {
-      //   switch (filters.requestDateRange) {
-      //     case "today":
-      //       conditions.push(sql`DATE(${requests.requestDate}) = DATE(${today})`);
-      //       break;
-      //     case "yesterday":
-      //       conditions.push(sql`DATE(${requests.requestDate}) = DATE(${yesterday})`);
-      //       break;
-      //     case "past_week":
-      //       conditions.push(sql`${requests.requestDate} >= ${lastWeek}`);
-      //       break;
-      //   }
+      // if (filters.status && filters.status.length > 0) {
+      //   conditions.push(inArray(requests.status, filters.status));
       // }
 
-      // if (filters.issuedDateRange) {
-      //   switch (filters.issuedDateRange) {
-      //     case "today":
-      //       conditions.push(sql`DATE(${requests.issuedDate}) = DATE(${today})`);
-      //       break;
-      //     case "yesterday":
-      //       conditions.push(sql`DATE(${requests.issuedDate}) = DATE(${yesterday})`);
-      //       break;
-      //     case "past_week":
-      //       conditions.push(sql`${requests.issuedDate} >= ${lastWeek}`);
-      //       break;
-      //   }
+      // if (filters.requestDate) {
+      //   conditions.push(
+      //     ilike(requests.requestDate, filters.requestDate.toString())
+      //   );
       // }
 
-      // if (filters.returnedDateRange) {
-      //   switch (filters.returnedDateRange) {
-      //     case "today":
-      //       conditions.push(sql`DATE(${requests.returnDate}) = DATE(${today})`);
-      //       break;
-      //     case "yesterday":
-      //       conditions.push(sql`DATE(${requests.returnDate}) = DATE(${yesterday})`);
-      //       break;
-      //     case "past_week":
-      //       conditions.push(sql`${requests.returnDate} >= ${lastWeek}`);
-      //       break;
-      //   }
+      // if (filters.issuedDate) {
+      //   conditions.push(
+      //     ilike(requests.issuedDate, filters.issuedDate.toISOString())
+      //   );
       // }
 
-      baseQuery = baseQuery.where(and(...conditions));
+      // if (filters.returnedDate) {
+      //   conditions.push(
+      //     ilike(requests.returnDate, filters.returnedDate.toISOString())
+      //   );
+      // }
+      // console.log(conditions, "conditions");
+      // baseQuery = baseQuery.where(and(...conditions));
 
-      const filteredRequests = await baseQuery
+      const paginatedRequests = await baseQuery
+        .orderBy(asc(requests.requestDate))
         .limit(6)
-        .offset(offset)
-        .orderBy(requests.status);
+        .offset(offset);
 
-      return filteredRequests;
+      return paginatedRequests.map((request) => ({
+        ...request,
+        requestDate: new Date(request.requestDate),
+        issuedDate: request.issuedDate ? new Date(request.issuedDate) : null,
+        returnDate: request.returnDate ? new Date(request.returnDate) : null,
+      }));
     });
-
+    console.log(allRequests, "all requests");
     return allRequests;
   } catch (error) {
-    console.error("Error fetching user requests:", error);
-    throw new Error("Failed to fetch user requests.");
+    console.error("Error fetching requests:", error);
+    throw error;
   }
 }
 
@@ -589,11 +551,11 @@ export async function fetchPaginatedRequest(query: string): Promise<number> {
         .from(requests)
         .where(
           or(
-            ilike(requests.memberId, `%${query}%`),
-            ilike(requests.bookId, `%${query}%`),
-            ilike(requests.requestDate, `%${query}%`),
-            ilike(requests.returnDate ?? "", `%${query}%`),
-            ilike(requests.issuedDate ?? "", `%${query}%`),
+            // ilike(requests.memberId, `%${query}%`),
+            // ilike(requests.bookId, `%${query}%`),
+            // ilike(requests.requestDate, `%${query}%`),
+            // ilike(requests.returnDate ?? "", `%${query}%`),
+            // ilike(requests.issuedDate ?? "", `%${query}%`),
             ilike(requests.status, `%${query}%`)
           )
         );
@@ -614,6 +576,6 @@ export async function fetchPaginatedRequest(query: string): Promise<number> {
     return totalPages;
   } catch (error) {
     console.error("Database Error:", error);
-    return 0;
+    throw error;
   }
 }

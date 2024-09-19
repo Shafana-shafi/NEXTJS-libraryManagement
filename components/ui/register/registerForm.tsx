@@ -21,7 +21,6 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ onSubmit }: RegisterFormProps) {
   const [formData, setFormData] = useState<RegisteredMemberInterface>({
-    id: 0,
     firstName: "",
     lastName: "",
     email: "",

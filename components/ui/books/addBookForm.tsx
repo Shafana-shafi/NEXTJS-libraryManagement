@@ -26,6 +26,8 @@ type iBook = z.infer<typeof bookSchema> & {
 
 export default function AddBookForm() {
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
+  const [coverImage, setCoverImage] = useState<File | null>(null); // New state for file
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -38,28 +40,75 @@ export default function AddBookForm() {
     mode: "onChange",
   });
   const { toast } = useToast();
+
+  // Cloudinary image upload function
+  const uploadImageToCloudinary = async (image: File) => {
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append("upload_preset", "ml_default"); // Update with your preset if different
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dpwjausog/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Image upload failed.");
+      }
+      const data = await response.json();
+      console.log(data, "data");
+      return data.secure_url;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    }
+  };
+
   const onSubmit = async (data: iBook) => {
-    console.log(data, "book data");
-    const result = await handleAddBook(data);
-    if (result && !result.success) {
-      if (result.errors) {
-        setServerErrors(result.errors);
-      } else {
+    setLoading(true);
+    try {
+      let coverImageUrl = "";
+      if (coverImage) {
+        coverImageUrl = await uploadImageToCloudinary(coverImage);
+        console.log("Image URL:", coverImageUrl);
+      }
+
+      const result = await handleAddBook({
+        ...data,
+        imgUrl: coverImageUrl, // Send the coverImage URL to the backend
+      });
+
+      if (result && !result.success) {
+        if (result.errors) {
+          setServerErrors(result.errors);
+        } else {
+          toast({
+            title: "Error",
+            description: "Something went wrong while adding the book.",
+            variant: "destructive",
+            duration: 1000,
+          });
+        }
+      }
+
+      if (result?.success) {
         toast({
-          title: "Error",
-          description: "Something went wront while adding book",
-          variant: "destructive",
+          title: "Success",
+          description: "Book Added Successfully",
+          className: "bg-green-500",
           duration: 1000,
         });
       }
-    }
-    if (result?.success) {
+    } catch (error) {
       toast({
-        title: "Success",
-        description: "Book Added Successfully",
-        className: "bg-green-500",
-        duration: 1000,
+        title: "Error",
+        description: "Failed to upload image or add book.",
+        variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,6 +203,23 @@ export default function AddBookForm() {
               )}
             </div>
           </div>
+
+          {/* Image Upload Field */}
+          <div className="space-y-1">
+            <Label htmlFor="coverImage" className="text-rose-700">
+              Cover Image
+            </Label>
+            <Input
+              id="coverImage"
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setCoverImage(e.target.files ? e.target.files[0] : null)
+              }
+              className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <Label htmlFor="isbnNo" className="text-rose-700">
@@ -241,10 +307,10 @@ export default function AddBookForm() {
         <CardFooter className="bg-rose-100 flex justify-center align-middle pt-6">
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={loading || isSubmitting}
             className="bg-rose-600 hover:bg-rose-700 text-white"
           >
-            Add Book
+            {loading ? "Adding..." : "Add Book"}
           </Button>
         </CardFooter>
       </form>

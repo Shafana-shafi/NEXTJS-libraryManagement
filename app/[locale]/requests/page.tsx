@@ -57,7 +57,7 @@ export default async function RequestsPage({
 
   console.log(filters);
   const totalPages = await fetchPaginatedRequest(query);
-
+  console.log(totalPages, "totalpages");
   const requests = isAdmin
     ? await fetchAllRequests(query, currentPage, filters)
     : await fetchFilteredUserRequests(
@@ -152,12 +152,12 @@ export default async function RequestsPage({
                   key={query + currentPage + JSON.stringify(filters)}
                   fallback={<TableSkeleton />}
                 >
-                  {/* <RequestsTable
+                  <RequestsTable
                     requests={requests}
                     onAccept={handleAccept}
                     onDecline={handleDecline}
                     onReturn={handleReturn}
-                  /> */}
+                  />
                 </Suspense>
               </div>
             )}

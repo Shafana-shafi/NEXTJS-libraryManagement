@@ -6,6 +6,7 @@ export interface iBookBase {
   isbnNo: string;
   pages: number;
   totalCopies: number;
+  imgUrl: string | null;
 }
 export interface iBook extends iBookBase {
   id: number;
