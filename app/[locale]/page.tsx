@@ -1,12 +1,40 @@
-import LandingPageClient from "@/allTables/homePage";
 import { useTranslations } from "next-intl";
+import LandingPageClient from "@/allTables/homePage";
+import { useLocale } from "next-intl";
 
 export default function LandingPage() {
-  // We're not using this `t` function directly in this component,
-  // // but we're keeping it to demonstrate how to use server-side translations if needed
-  // unstable_setRequestLocale(locale);
+  const t = useTranslations("LandingPageClient");
+  const locale = useLocale();
 
-  const t = useTranslations("IndexPage");
+  const translations = {
+    libraryName: t("libraryName"),
+    features: t("features"),
+    about: t("about"),
+    contact: t("contact"),
+    loginRegister: t("loginRegister"),
+    welcome: t("welcome"),
+    description: t("description"),
+    termsOfService: t("termsOfService"),
+    privacy: t("privacy"),
+    copyright: t("copyright", { year: new Date().getFullYear() }),
+    changeLanguage: t("changeLanguage"),
+    english: t("english"),
+    kannada: t("kannada"),
+  };
 
-  return <LandingPageClient />;
+  return <LandingPageClient translations={translations} locale={locale} />;
 }
+
+// import { NextIntlClientProvider } from "next-intl";
+// import { getTranslations } from "next-intl/server";
+// import LandingPageClient from "@/allTables/homePage";
+
+// export default async function LandingPage() {
+//   const messages = await getTranslations("LandingPageClient");
+
+//   return (
+//     <NextIntlClientProvider messages={messages}>
+//       <LandingPageClient />
+//     </NextIntlClientProvider>
+//   );
+//}

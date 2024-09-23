@@ -29,7 +29,7 @@ export default async function Books({
         status: "requested",
       };
       await createRequest(request);
-      revalidatePath("/books"); // Adjust this path as needed
+      revalidatePath("/userBooks");
       return { success: true, message: "Book request submitted successfully." };
     } catch (error) {
       console.error("Error requesting book:", error);

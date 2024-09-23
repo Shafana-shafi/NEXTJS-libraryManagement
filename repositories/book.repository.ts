@@ -17,42 +17,46 @@ export const db = drizzle(sql, { schema });
  * @param {iBookBase} data - The book data to create.
  * @returns {Promise<iBook>}
  */
-export async function createBook(book: iBook): Promise<iBookB | undefined> {
+export async function createBook(book: iBook) {
   try {
     // Check if the book already exists
     const existingBooks = await db
       .select()
       .from(books)
-      .where(and(eq(books.isbnNo, book.isbnNo), eq(books.title, book.title)))
+      .where(eq(books.isbnNo, book.isbnNo))
       .limit(10)
       .execute();
 
     if (existingBooks.length > 0) {
       // Update existing book
-      const existingBook = existingBooks[0];
-      const updatedTotalCopies = existingBook.totalCopies + book.totalCopies;
-      const updatedAvailableCopies =
-        existingBook.availableCopies + book.totalCopies;
+      // const existingBook = existingBooks[0];
+      // const updatedTotalCopies = existingBook.totalCopies + book.totalCopies;
+      // const updatedAvailableCopies =
+      //   existingBook.availableCopies + book.totalCopies;
 
-      await db
-        .update(books)
-        .set({
-          totalCopies: updatedTotalCopies,
-          availableCopies: updatedAvailableCopies,
-          imgUrl: null,
-        })
-        .where(and(eq(books.isbnNo, book.isbnNo), eq(books.title, book.title)))
-        .execute();
+      // await db
+      //   .update(books)
+      //   .set({
+      //     totalCopies: updatedTotalCopies,
+      //     availableCopies: updatedAvailableCopies,
+      //     imgUrl: null,
+      //   })
+      //   .where(and(eq(books.isbnNo, book.isbnNo), eq(books.title, book.title)))
+      //   .execute();
 
-      const updatedBook: iBookB = {
-        ...existingBook,
-        totalCopies: updatedTotalCopies,
-        availableCopies: updatedAvailableCopies,
-        imgUrl: null,
-      };
+      // const updatedBook: iBookB = {
+      //   ...existingBook,
+      //   totalCopies: updatedTotalCopies,
+      //   availableCopies: updatedAvailableCopies,
+      //   imgUrl: null,
+      // };
 
       console.log("---BOOK ALREADY EXISTED, INCREASED NUMBER OF COPIES---");
-      return updatedBook;
+      // return updatedBook;
+      return {
+        success: false,
+        message: "A Book with this ISBN already exists",
+      };
     } else {
       // Insert new book
       const newBookData: iBookB = {
@@ -65,11 +69,14 @@ export async function createBook(book: iBook): Promise<iBookB | undefined> {
       await db.insert(books).values(newBookData).execute();
 
       console.log(chalk.green("Book added successfully\n"));
-      return newBookData;
+      return { success: true, message: "Book added successful." };
     }
   } catch (error) {
     console.error("Error creating book:", error);
-    throw error;
+    return {
+      success: false,
+      message: "Could not add this book",
+    };
   }
 }
 
@@ -416,9 +423,14 @@ export async function updateAvailableBookCopiesOnReturn(id: number) {
 export async function getDistinctGenres() {
   try {
     // Query to get distinct genres from the books table
-    const genres = await db.selectDistinct({ genre: books.genre }).from(books);
-    const genre = genres.map((genre) => genre.genre);
-    return genre;
+    const genres = await db.transaction(async (transaction) => {
+      const genres = await transaction
+        .selectDistinct({ genre: books.genre })
+        .from(books);
+      const genre = genres.map((genre) => genre.genre);
+      return genre;
+    });
+    return genres;
   } catch (error) {
     console.error("Error fetching genres:", error);
     throw new Error("Could not fetch genres");

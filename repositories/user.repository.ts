@@ -65,15 +65,23 @@ export async function completeProfile(formData: FormData) {
 
 export async function register(memberData: RegisteredMemberInterface) {
   try {
-    const existingMembers = await db
+    // Check if a member with the same email already exists
+    const existingMember = await db
       .select()
       .from(members)
-      .where(eq(members.email, memberData.email));
+      .where(eq(members.email, memberData.email))
+      .limit(1);
 
-    if (existingMembers.length > 0) {
-      return { success: false, message: "User already exists. Please log in." };
+    console.log(members.email, memberData.email);
+    if (existingMember.length > 0) {
+      return {
+        success: false,
+        message:
+          "A user with this email already exists. Please use a different email or log in.",
+      };
     }
 
+    // If no existing member, proceed with registration
     const password = memberData.password as string;
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -312,6 +320,39 @@ export async function getUserById(id: number) {
 }
 
 export async function updateMember(id: number, data: iMemberBase) {
+  try {
+    const existingMembers = await db
+      .select()
+      .from(members)
+      .where(eq(members.id, id))
+      .limit(1);
+
+    if (existingMembers.length === 0) {
+      console.log("---NO MEMBER FOUND---");
+      return null;
+    }
+
+    const existingMember = existingMembers[0];
+    const updatedMember = { ...existingMember, ...data };
+
+    await db.update(members).set(updatedMember).where(eq(members.id, id));
+
+    console.log("---MEMBER UPDATED SUCCESSFULLY---");
+    return updatedMember;
+  } catch (error) {
+    console.error("Error updating member:", error);
+    throw error;
+  }
+}
+
+interface updateProfile {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+}
+
+export async function updateMemberForProfile(id: number, data: updateProfile) {
   try {
     const existingMembers = await db
       .select()

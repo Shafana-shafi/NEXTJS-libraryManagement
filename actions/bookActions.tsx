@@ -14,21 +14,39 @@ import { EditBookForm } from "@/components/ui/books/editBookForm";
 import type { Book } from "@/allTables/bookTable";
 import { iBookBase } from "@/models/book.model";
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation"; // Use router to refresh or navigate if needed
+import { useRouter } from "next/navigation";
+
+interface BookActionButtonsProps {
+  book: Book;
+  onEdit: (id: number, updatedBook: iBookBase) => Promise<void>;
+  onDelete: (bookId: number) => Promise<void>;
+  translations: {
+    edit: string;
+    delete: string;
+    editBook: string;
+    confirmDeletion: string;
+    deleteConfirmation: string;
+    cancel: string;
+    confirm: string;
+    success: string;
+    error: string;
+    bookUpdated: string;
+    bookDeleted: string;
+    updateFailed: string;
+    deleteFailed: string;
+  };
+}
 
 export function BookActionButtons({
   book,
   onEdit,
   onDelete,
-}: {
-  book: Book;
-  onEdit: (id: number, updatedBook: iBookBase) => Promise<void>;
-  onDelete: (bookId: number) => Promise<void>;
-}) {
+  translations,
+}: BookActionButtonsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const router = useRouter(); // To refresh the page after delete
+  const router = useRouter();
   const { toast } = useToast();
 
   const handleSaveEdit = async (updatedBook: iBookBase) => {
@@ -36,20 +54,19 @@ export function BookActionButtons({
     try {
       await onEdit(book.id, updatedBook);
       toast({
-        title: "Success",
-        description: "Book updated successfully",
+        title: translations.success,
+        description: translations.bookUpdated,
         className: "bg-green-500 text-white",
-        duration: 1000, // 2 seconds
+        duration: 1000,
       });
-      console.log("after toast");
       setIsEditing(false);
-      router.refresh(); // Optional: refresh the page or data after success
+      router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update book.",
-        variant: "destructive", // Red background for error
-        duration: 1000, // 2 seconds
+        title: translations.error,
+        description: translations.updateFailed,
+        variant: "destructive",
+        duration: 1000,
       });
       console.error("Error updating book:", error);
     } finally {
@@ -62,24 +79,23 @@ export function BookActionButtons({
     try {
       await onDelete(book.id);
       toast({
-        title: "Success",
-        description: "Book deleted successfully",
+        title: translations.success,
+        description: translations.bookDeleted,
         className: "bg-green-600 text-white",
-        duration: 1000, // 2 seconds
+        duration: 1000,
       });
-      router.refresh(); // Optional: refresh the page after success
+      router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description:
-          "Failed to delete. This book might be currently loaned out.",
-        variant: "destructive", // Red background for error
-        duration: 1000, // 2 seconds
+        title: translations.error,
+        description: translations.deleteFailed,
+        variant: "destructive",
+        duration: 1000,
       });
       console.error("Error deleting book:", error);
     } finally {
       setIsPending(false);
-      setIsConfirmingDelete(false); // Close the confirmation dialog
+      setIsConfirmingDelete(false);
     }
   };
 
@@ -89,41 +105,37 @@ export function BookActionButtons({
         <DialogTrigger asChild>
           <Button size="sm" onClick={() => setIsEditing(true)}>
             <Pencil className="mr-2 h-4 w-4" />
-            Edit
+            {translations.edit}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Book</DialogTitle>
+            <DialogTitle>{translations.editBook}</DialogTitle>
           </DialogHeader>
           <EditBookForm book={book} onSave={handleSaveEdit} />
         </DialogContent>
       </Dialog>
 
-      {/* Confirmation Dialog for Delete */}
       <Dialog open={isConfirmingDelete} onOpenChange={setIsConfirmingDelete}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>{translations.confirmDeletion}</DialogTitle>
           </DialogHeader>
-          <p>
-            Are you sure you want to delete this book? This action cannot be
-            undone.
-          </p>
+          <p>{translations.deleteConfirmation}</p>
           <div className="flex justify-end space-x-2 mt-4">
             <Button
               variant="outline"
               onClick={() => setIsConfirmingDelete(false)}
               disabled={isPending}
             >
-              Cancel
+              {translations.cancel}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isPending}
             >
-              Confirm
+              {translations.confirm}
             </Button>
           </div>
         </DialogContent>
@@ -136,7 +148,7 @@ export function BookActionButtons({
         disabled={isPending}
       >
         <Trash2 className="mr-2 h-4 w-4" />
-        Delete
+        {translations.delete}
       </Button>
     </div>
   );

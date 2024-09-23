@@ -18,6 +18,14 @@ import NavBar from "@/ui/components/navBar";
 import AddButton from "@/components/ui/books/addButton";
 import GenreDropdown from "@/allTables/FilterBooksComponent";
 import { iBookBase } from "@/models/book.model";
+import {
+  getLocale,
+  getNow,
+  getTimeZone,
+  getMessages,
+  getTranslations,
+} from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
 
 export default async function Page({
   searchParams,
@@ -46,6 +54,11 @@ export default async function Page({
     }
   }
 
+  const locale = await getLocale();
+  const now = await getNow();
+  const timeZone = await getTimeZone();
+  const messages = await getMessages();
+  const t = await getTranslations("BooksTable");
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
   const selectedGenre = searchParams?.genre || "all";
@@ -66,54 +79,87 @@ export default async function Page({
     sortField,
     sortOrder
   );
+
+  const translations = {
+    title: t("title"),
+    author: t("author"),
+    publisher: t("publisher"),
+    isbn: t("isbn"),
+    availableCopies: t("availableCopies"),
+    price: t("price"),
+    actions: t("actions"),
+    edit: t("edit"),
+    delete: t("delete"),
+    copiesAvailable: t("copiesAvailable"),
+    editBook: t("editBook"),
+    confirmDeletion: t("confirmDeletion"),
+    deleteConfirmation: "deleteConfirmation",
+    cancel: t("cancel"),
+    confirm: t("confirm"),
+    success: t("success"),
+    error: t("error"),
+    bookUpdated: t("bookUpdated"),
+    bookDeleted: t("bookDeleted"),
+    updateFailed: t("updateFailed"),
+    deleteFailed: t("deleteFailed"),
+  };
+
   async function handleEditBook(id: number, updatedBook: iBookBase) {
     "use server";
     await update(id, updatedBook);
-    revalidatePath("/en/adminBooks");
+    revalidatePath("/adminBooks");
   }
 
   async function handleDeleteBook(bookId: number) {
     "use server";
     await deleteBook(bookId);
-    revalidatePath("/en/adminBooks");
+    revalidatePath("/adminBooks");
   }
 
   return (
-    <div className="flex h-screen flex-col bg-rose-50 text-rose-900">
-      <NavBar />
-      <div className="flex flex-grow">
-        <SideNav />
-        <div className="relative flex flex-col flex-grow bg-rose-50 p-4">
-          <div className="flex items-center justify-center gap-4 mb-3 align-middle">
-            <Search placeholder="Search Books..." />
-            <GenreDropdown genres={genres} />
-            {userRole === "admin" && <AddButton />}
-          </div>
-          <div className="flex-grow px-4 overflow-auto">
-            {totalPages === 0 ? (
-              <div className="text-center text-rose-500 mt-10">
-                No books found for the search query.
-              </div>
-            ) : (
-              <Suspense
-                key={
-                  query + currentPage + selectedGenre + sortField + sortOrder
-                }
-                fallback={<TableSkeleton />}
-              >
-                <BooksTable
-                  initialBooks={books}
-                  onEditBook={handleEditBook}
-                  onDeleteBook={handleDeleteBook}
-                />
-              </Suspense>
-            )}
-          </div>
-          <div className="sticky bottom-0 left-0 right-0 p-3 bg-rose-100 flex justify-center">
-            {totalPages > 0 && <Pagination totalPages={totalPages} />}
+    <NextIntlClientProvider
+      locale={locale}
+      now={now}
+      timeZone={timeZone}
+      messages={messages}
+    >
+      <div className="flex h-screen flex-col bg-rose-50 text-rose-900">
+        <NavBar />
+        <div className="flex flex-grow">
+          <SideNav />
+          <div className="relative flex flex-col flex-grow bg-rose-50 p-4">
+            <div className="flex items-center justify-center gap-4 mb-3 align-middle">
+              <Search placeholder={t("searchBooks")} />
+              <GenreDropdown genres={genres} />
+              {userRole === "admin" && <AddButton />}
+            </div>
+            <div className="flex-grow px-4 overflow-auto">
+              {totalPages === 0 ? (
+                <div className="text-center text-rose-500 mt-10">
+                  {t("noBooksFound")}
+                </div>
+              ) : (
+                <Suspense
+                  key={
+                    query + currentPage + selectedGenre + sortField + sortOrder
+                  }
+                  fallback={<TableSkeleton />}
+                >
+                  <BooksTable
+                    initialBooks={books}
+                    onEditBook={handleEditBook}
+                    onDeleteBook={handleDeleteBook}
+                    translations={translations}
+                  />
+                </Suspense>
+              )}
+            </div>
+            <div className="sticky bottom-0 left-0 right-0 p-3 bg-rose-100 flex justify-center">
+              {totalPages > 0 && <Pagination totalPages={totalPages} />}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </NextIntlClientProvider>
   );
 }

@@ -33,15 +33,41 @@ export type Book = iBookBase & {
   imgUrl: string | null;
 };
 
+interface BooksTableProps {
+  initialBooks: Book[];
+  onEditBook: (id: number, updatedBook: iBookBase) => Promise<void>;
+  onDeleteBook: (bookId: number) => Promise<void>;
+  translations: {
+    title: string;
+    author: string;
+    publisher: string;
+    isbn: string;
+    availableCopies: string;
+    price: string;
+    actions: string;
+    edit: string;
+    delete: string;
+    copiesAvailable: string;
+    editBook: string;
+    confirmDeletion: string;
+    deleteConfirmation: string;
+    cancel: string;
+    confirm: string;
+    success: string;
+    error: string;
+    bookUpdated: string;
+    bookDeleted: string;
+    updateFailed: string;
+    deleteFailed: string;
+  };
+}
+
 export default function BooksTable({
   initialBooks,
   onEditBook,
   onDeleteBook,
-}: {
-  initialBooks: Book[];
-  onEditBook: (id: number, updatedBook: iBookBase) => Promise<void>;
-  onDeleteBook: (bookId: number) => Promise<void>;
-}) {
+  translations,
+}: BooksTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -91,27 +117,42 @@ export default function BooksTable({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEditBook(book.id, book)}>
-              Edit
+              {translations.edit}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDeleteBook(book.id)}>
-              Delete
+              {translations.delete}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <p className="text-sm text-gray-600 mb-1">Author: {book.author}</p>
-      <p className="text-sm text-gray-600 mb-1">Publisher: {book.publisher}</p>
-      <p className="text-sm text-gray-600 mb-1">ISBN: {book.isbnNo}</p>
+      <p className="text-sm text-gray-600 mb-1">
+        {translations.author}: {book.author}
+      </p>
+      <p className="text-sm text-gray-600 mb-1">
+        {translations.publisher}: {book.publisher}
+      </p>
+      <p className="text-sm text-gray-600 mb-1">
+        {translations.isbn}: {book.isbnNo}
+      </p>
       <div className="flex justify-between items-center mt-2">
         <span className="text-sm font-medium text-rose-600">
           ₹{book.price.toFixed(2)}
         </span>
         <span className="text-sm text-gray-600">
-          {book.availableCopies} copies available
+          {book.availableCopies} {translations.copiesAvailable}
         </span>
       </div>
     </div>
   );
+
+  const tableHeaders: (keyof Book)[] = [
+    "title",
+    "author",
+    "publisher",
+    "isbnNo",
+    "availableCopies",
+    "price",
+  ];
 
   return (
     <>
@@ -121,30 +162,25 @@ export default function BooksTable({
       </div>
 
       {/* Desktop view */}
-      <div className="hidden md:block rounded-md border bg-white border-rose-200 overflow-hidden">
+      <div className="hidden md:block rounded-md border bg-white border-rose-200 overflow-hidden mb-4">
         <Table>
           <TableHeader>
             <TableRow>
-              {[
-                "title",
-                "author",
-                "publisher",
-                "isbnNo",
-                "availableCopies",
-                "price",
-              ].map((key) => (
+              {tableHeaders.map((key) => (
                 <TableHead key={key} className="text-rose-800">
                   <Button
                     variant="ghost"
-                    onClick={() => handleSort(key as keyof Book)}
+                    onClick={() => handleSort(key)}
                     className="hover:bg-rose-200 text-rose-800"
                   >
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                    {getSortIcon(key as keyof Book)}
+                    {translations[key as keyof typeof translations]}
+                    {getSortIcon(key)}
                   </Button>
                 </TableHead>
               ))}
-              <TableHead className="text-rose-800">Actions</TableHead>
+              <TableHead className="text-rose-800">
+                {translations.actions}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -168,6 +204,7 @@ export default function BooksTable({
                     book={book}
                     onDelete={onDeleteBook}
                     onEdit={onEditBook}
+                    translations={translations}
                   />
                 </TableCell>
               </TableRow>

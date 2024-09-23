@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Eye, EyeOff, BookOpen } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, BookOpen, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,10 +16,35 @@ import {
 import { RegisteredMemberInterface } from "@/models/member.model";
 
 interface RegisterFormProps {
-  onSubmit: (data: RegisteredMemberInterface) => void;
+  onSubmit: (
+    data: RegisteredMemberInterface
+  ) => Promise<{ success: boolean; message: string } | void>;
+  translations: {
+    createAccount: string;
+    firstName: string;
+    lastName: string;
+    emailAddress: string;
+    password: string;
+    register: string;
+    alreadyHaveAccount: string;
+    signIn: string;
+    showPassword: string;
+    hidePassword: string;
+    firstNameRequired: string;
+    lastNameRequired: string;
+    emailRequired: string;
+    emailInvalid: string;
+    passwordRequired: string;
+    passwordLength: string;
+    registrationSuccess: string;
+    registrationError: string;
+  };
 }
 
-export default function RegisterForm({ onSubmit }: RegisterFormProps) {
+export default function RegisterForm({
+  onSubmit,
+  translations,
+}: RegisterFormProps) {
   const [formData, setFormData] = useState<RegisteredMemberInterface>({
     firstName: "",
     lastName: "",
@@ -31,15 +56,68 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
     address: null,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const validateField = (name: string, value: string) => {
+    let error = "";
+    switch (name) {
+      case "firstName":
+      case "lastName":
+        if (value.trim().length < 2) {
+          error =
+            name === "firstName"
+              ? translations.firstNameRequired
+              : translations.lastNameRequired;
+        }
+        break;
+      case "email":
+        if (!/\S+@\S+\.\S+/.test(value)) {
+          error = translations.emailInvalid;
+        }
+        break;
+      case "password":
+        if (value.length < 8) {
+          error = translations.passwordLength;
+        }
+        break;
+    }
+    return error;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const newErrors: Record<string, string> = {};
+    Object.entries(formData).forEach(([key, value]) => {
+      if (typeof value === "string" && touched[key]) {
+        const error = validateField(key, value);
+        if (error) {
+          newErrors[key] = error;
+        }
+      }
+    });
+    setErrors(newErrors);
+  }, [formData, touched]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (Object.keys(errors).length === 0) {
+      const result = await onSubmit(formData);
+      if (result && !result.success) {
+        setServerError(result.message);
+      }
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   return (
@@ -49,7 +127,7 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
           <div className="flex flex-col items-center">
             <BookOpen className="h-12 w-12 text-rose-600 mb-2" />
             <CardTitle className="text-2xl font-bold text-rose-800">
-              Create your account
+              {translations.createAccount}
             </CardTitle>
           </div>
         </CardHeader>
@@ -57,37 +135,49 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-rose-700">
-                First Name
+                {translations.firstName}
               </Label>
               <Input
                 id="firstName"
                 name="firstName"
                 type="text"
                 required
-                placeholder="John"
+                placeholder={translations.firstName}
                 value={formData.firstName}
                 onChange={handleChange}
-                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+                onBlur={handleBlur}
+                className={`border-rose-200 focus:border-rose-400 focus:ring-rose-400 ${
+                  errors.firstName && touched.firstName ? "border-red-500" : ""
+                }`}
               />
+              {errors.firstName && touched.firstName && (
+                <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-rose-700">
-                Last Name
+                {translations.lastName}
               </Label>
               <Input
                 id="lastName"
                 name="lastName"
                 type="text"
                 required
-                placeholder="Doe"
+                placeholder={translations.lastName}
                 value={formData.lastName}
                 onChange={handleChange}
-                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+                onBlur={handleBlur}
+                className={`border-rose-200 focus:border-rose-400 focus:ring-rose-400 ${
+                  errors.lastName && touched.lastName ? "border-red-500" : ""
+                }`}
               />
+              {errors.lastName && touched.lastName && (
+                <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-rose-700">
-                Email address
+                {translations.emailAddress}
               </Label>
               <Input
                 id="email"
@@ -95,15 +185,21 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                 type="email"
                 autoComplete="email"
                 required
-                placeholder="john.doe@example.com"
+                placeholder={translations.emailAddress}
                 value={formData.email}
                 onChange={handleChange}
-                className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+                onBlur={handleBlur}
+                className={`border-rose-200 focus:border-rose-400 focus:ring-rose-400 ${
+                  errors.email && touched.email ? "border-red-500" : ""
+                }`}
               />
+              {errors.email && touched.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-rose-700">
-                Password
+                {translations.password}
               </Label>
               <div className="relative">
                 <Input
@@ -115,7 +211,10 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                   placeholder="••••••••"
                   value={formData.password ?? ""}
                   onChange={handleChange}
-                  className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+                  onBlur={handleBlur}
+                  className={`border-rose-200 focus:border-rose-400 focus:ring-rose-400 ${
+                    errors.password && touched.password ? "border-red-500" : ""
+                  }`}
                 />
                 <Button
                   type="button"
@@ -131,23 +230,35 @@ export default function RegisterForm({ onSubmit }: RegisterFormProps) {
                   )}
                 </Button>
               </div>
+              {errors.password && touched.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
+            {serverError && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                  <p className="text-sm text-red-700">{serverError}</p>
+                </div>
+              </div>
+            )}
             <Button
               type="submit"
               className="w-full bg-rose-600 hover:bg-rose-700 text-white py-2"
+              disabled={Object.keys(errors).length > 0}
             >
-              Register
+              {translations.register}
             </Button>
           </form>
         </CardContent>
         <CardFooter>
           <p className="text-sm text-center w-full text-rose-600">
-            Already have an account?{" "}
+            {translations.alreadyHaveAccount}{" "}
             <Link
               href="/login"
               className="font-medium text-rose-800 hover:underline"
             >
-              Sign in
+              {translations.signIn}
             </Link>
           </p>
         </CardFooter>

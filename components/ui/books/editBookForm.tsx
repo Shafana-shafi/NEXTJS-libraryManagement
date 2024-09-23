@@ -1,12 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { update } from "@/repositories/book.repository";
 import { iBook } from "@/models/book.model";
-import { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -14,6 +13,8 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import Image from "next/image";
 
 interface FormState extends Omit<iBook, "id"> {
   message?: string;
@@ -32,44 +33,6 @@ const initialState: FormState = {
   imgUrl: null,
 };
 
-function formAction(bookid: number) {
-  return async (
-    prevState: FormState,
-    formData: FormData
-  ): Promise<FormState> => {
-    try {
-      const bookData = Object.fromEntries(formData.entries());
-      const updatedBook = {
-        id: bookid,
-        title: bookData.title as string,
-        publisher: bookData.publisher as string,
-        author: bookData.author as string,
-        genre: bookData.genre as string,
-        isbnNo: bookData.isbnNo as string,
-        pages: parseInt(bookData.pages as string, 10),
-        totalCopies: parseInt(bookData.totalCopies as string, 10),
-        availableCopies: parseInt(bookData.availableCopies as string, 10),
-        price: parseInt(bookData.price as string, 10),
-        imgUrl: "",
-      };
-
-      const response = await update(bookid, updatedBook);
-      if (response) {
-        return { ...updatedBook, message: "Book updated successfully!" };
-      }
-      return {
-        ...prevState,
-        message: "Failed to update book. Please try again.",
-      };
-    } catch (error) {
-      return {
-        ...prevState,
-        message: "An error occurred. Please try again.",
-      };
-    }
-  };
-}
-
 export function EditBookForm({
   book,
   onSave,
@@ -78,6 +41,7 @@ export function EditBookForm({
   onSave: (updatedBook: iBook) => Promise<void>;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
 
   const [formState, setFormState] = useState<FormState>({
     title: book.title,
@@ -89,10 +53,11 @@ export function EditBookForm({
     totalCopies: book.totalCopies,
     availableCopies: book.availableCopies,
     price: book.price,
-    imgUrl: "",
+    imgUrl: book.imgUrl,
   });
 
-  const [message, setMessage] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -108,17 +73,61 @@ export function EditBookForm({
     }));
   };
 
+  const uploadImageToCloudinary = async (image: File) => {
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append("upload_preset", "ml_default"); // Update with your preset if different
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dpwjausog/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Image upload failed.");
+      }
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
+      let coverImageUrl = formState.imgUrl;
+      if (coverImage) {
+        coverImageUrl = await uploadImageToCloudinary(coverImage);
+      }
+
       const updatedBook = {
         ...book,
         ...formState,
+        imgUrl: coverImageUrl,
       };
+
       await onSave(updatedBook);
-      setMessage("Book updated successfully!");
+      toast({
+        title: "Success",
+        description: "Book updated successfully!",
+        className: "bg-green-500",
+        duration: 3000,
+      });
+      router.refresh();
     } catch (error) {
-      setMessage("Failed to update book. Please try again.");
+      toast({
+        title: "Error",
+        description: "Failed to update book. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -249,15 +258,40 @@ export function EditBookForm({
               />
             </div>
           </div>
+          <div className="space-y-1">
+            <Label htmlFor="coverImage" className="text-rose-700">
+              Cover Image
+            </Label>
+            <Input
+              id="coverImage"
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setCoverImage(e.target.files ? e.target.files[0] : null)
+              }
+              className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
+            />
+            {formState.imgUrl && (
+              <div className="mt-2">
+                <Image
+                  src={formState.imgUrl}
+                  alt="Current cover"
+                  width={100}
+                  height={150}
+                  className="rounded-md"
+                />
+              </div>
+            )}
+          </div>
         </CardContent>
         <CardFooter className="bg-rose-100">
           <Button
             type="submit"
+            disabled={loading}
             className="bg-rose-600 hover:bg-rose-700 text-white"
           >
-            Save Changes
+            {loading ? "Updating..." : "Save Changes"}
           </Button>
-          {message && <p className="text-sm text-rose-600 ml-4">{message}</p>}
         </CardFooter>
       </form>
     </Card>

@@ -17,6 +17,7 @@ import {
 import { handleAddBook } from "../../../actions/addBookActions";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import Image from "next/image";
 
 type iBook = z.infer<typeof bookSchema> & {
   id: number;
@@ -24,10 +25,35 @@ type iBook = z.infer<typeof bookSchema> & {
   price: number;
 };
 
-export default function AddBookForm() {
+interface AddBookFormProps {
+  translations: {
+    addNewBook: string;
+    title: string;
+    author: string;
+    publisher: string;
+    genre: string;
+    coverImage: string;
+    isbn: string;
+    pages: string;
+    totalCopies: string;
+    price: string;
+    addBook: string;
+    adding: string;
+    error: string;
+    success: string;
+    addBookError: string;
+    bookAddedSuccess: string;
+    imageUploadError: string;
+    uploading: string;
+  };
+}
+
+export default function AddBookForm({ translations }: AddBookFormProps) {
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
-  const [coverImage, setCoverImage] = useState<File | null>(null); // New state for file
+  const [coverImage, setCoverImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const {
     register,
@@ -41,12 +67,12 @@ export default function AddBookForm() {
   });
   const { toast } = useToast();
 
-  // Cloudinary image upload function
   const uploadImageToCloudinary = async (image: File) => {
     const formData = new FormData();
     formData.append("file", image);
-    formData.append("upload_preset", "ml_default"); // Update with your preset if different
+    formData.append("upload_preset", "ml_default");
     try {
+      setUploadStatus(translations.uploading);
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/dpwjausog/image/upload`,
         {
@@ -58,10 +84,12 @@ export default function AddBookForm() {
         throw new Error("Image upload failed.");
       }
       const data = await response.json();
-      console.log(data, "data");
+      setUploadStatus("");
+      setPreviewUrl(data.secure_url);
       return data.secure_url;
     } catch (error) {
       console.error("Error uploading image:", error);
+      setUploadStatus("");
       throw error;
     }
   };
@@ -72,12 +100,11 @@ export default function AddBookForm() {
       let coverImageUrl = "";
       if (coverImage) {
         coverImageUrl = await uploadImageToCloudinary(coverImage);
-        console.log("Image URL:", coverImageUrl);
       }
 
       const result = await handleAddBook({
         ...data,
-        imgUrl: coverImageUrl, // Send the coverImage URL to the backend
+        imgUrl: coverImageUrl,
       });
 
       if (result && !result.success) {
@@ -85,8 +112,8 @@ export default function AddBookForm() {
           setServerErrors(result.errors);
         } else {
           toast({
-            title: "Error",
-            description: "Something went wrong while adding the book.",
+            title: translations.error,
+            description: translations.addBookError,
             variant: "destructive",
             duration: 1000,
           });
@@ -95,16 +122,16 @@ export default function AddBookForm() {
 
       if (result?.success) {
         toast({
-          title: "Success",
-          description: "Book Added Successfully",
+          title: translations.success,
+          description: translations.bookAddedSuccess,
           className: "bg-green-500",
           duration: 1000,
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to upload image or add book.",
+        title: translations.error,
+        description: translations.imageUploadError,
         variant: "destructive",
       });
     } finally {
@@ -116,17 +143,35 @@ export default function AddBookForm() {
     await trigger(fieldName);
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setCoverImage(file);
+      try {
+        await uploadImageToCloudinary(file);
+      } catch (error) {
+        toast({
+          title: translations.error,
+          description: translations.imageUploadError,
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   return (
     <Card className="w-full max-w-2xl mx-auto bg-rose-50 border-rose-200">
       <CardHeader className="bg-rose-100">
-        <CardTitle className="text-rose-800">Add New Book</CardTitle>
+        <CardTitle className="text-rose-800">
+          {translations.addNewBook}
+        </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="title" className="text-rose-700">
-                Title
+                {translations.title}
               </Label>
               <Input
                 id="title"
@@ -145,7 +190,7 @@ export default function AddBookForm() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="author" className="text-rose-700">
-                Author
+                {translations.author}
               </Label>
               <Input
                 id="author"
@@ -166,7 +211,7 @@ export default function AddBookForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="publisher" className="text-rose-700">
-                Publisher
+                {translations.publisher}
               </Label>
               <Input
                 id="publisher"
@@ -185,7 +230,7 @@ export default function AddBookForm() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="genre" className="text-rose-700">
-                Genre
+                {translations.genre}
               </Label>
               <Input
                 id="genre"
@@ -204,26 +249,37 @@ export default function AddBookForm() {
             </div>
           </div>
 
-          {/* Image Upload Field */}
           <div className="space-y-1">
             <Label htmlFor="coverImage" className="text-rose-700">
-              Cover Image
+              {translations.coverImage}
             </Label>
             <Input
               id="coverImage"
               type="file"
               accept="image/*"
-              onChange={(e) =>
-                setCoverImage(e.target.files ? e.target.files[0] : null)
-              }
+              onChange={handleImageChange}
               className="border-rose-200 focus:border-rose-400 focus:ring-rose-400"
             />
+            {uploadStatus && (
+              <p className="text-blue-600 text-sm">{uploadStatus}</p>
+            )}
+            {previewUrl && (
+              <div className="mt-2">
+                <Image
+                  src={previewUrl}
+                  alt="Cover preview"
+                  width={100}
+                  height={150}
+                  className="object-cover rounded"
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <Label htmlFor="isbnNo" className="text-rose-700">
-                ISBN
+                {translations.isbn}
               </Label>
               <Input
                 id="isbnNo"
@@ -242,7 +298,7 @@ export default function AddBookForm() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="pages" className="text-rose-700">
-                Pages
+                {translations.pages}
               </Label>
               <Input
                 id="pages"
@@ -262,7 +318,7 @@ export default function AddBookForm() {
             </div>
             <div className="space-y-1">
               <Label htmlFor="totalCopies" className="text-rose-700">
-                Total Copies
+                {translations.totalCopies}
               </Label>
               <Input
                 id="totalCopies"
@@ -285,7 +341,7 @@ export default function AddBookForm() {
           </div>
           <div className="space-y-1">
             <Label htmlFor="price" className="text-rose-700">
-              Price
+              {translations.price}
             </Label>
             <Input
               id="price"
@@ -310,7 +366,7 @@ export default function AddBookForm() {
             disabled={loading || isSubmitting}
             className="bg-rose-600 hover:bg-rose-700 text-white"
           >
-            {loading ? "Adding..." : "Add Book"}
+            {loading ? translations.adding : translations.addBook}
           </Button>
         </CardFooter>
       </form>

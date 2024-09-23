@@ -20,7 +20,28 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/ui/components/separator";
 
-export default function LoginForm() {
+interface Translations {
+  signInToAccount: string;
+  enterEmailToLogin: string;
+  emailAddress: string;
+  password: string;
+  signIn: string;
+  dontHaveAccount: string;
+  registerHere: string;
+  signInWithGoogle: string;
+  signInWithGitHub: string;
+  invalidEmail: string;
+  invalidPassword: string;
+  invalidCredentials: string;
+  successfulLogin: string;
+  loading: string;
+}
+
+export default function LoginForm({
+  translations,
+}: {
+  translations: Translations;
+}) {
   const router = useRouter();
   const [error, setError] = useState("");
   const { data: session, status: sessionStatus } = useSession();
@@ -60,14 +81,14 @@ export default function LoginForm() {
     ).value;
 
     if (!isValidEmail(email)) {
-      setError("Email is invalid");
-      toast.error("Email is invalid");
+      setError(translations.invalidEmail);
+      toast.error(translations.invalidEmail);
       return;
     }
 
     if (!password || password.length < 8) {
-      setError("Password is invalid");
-      toast.error("Password is invalid");
+      setError(translations.invalidPassword);
+      toast.error(translations.invalidPassword);
       return;
     }
 
@@ -78,11 +99,11 @@ export default function LoginForm() {
     });
 
     if (res?.error) {
-      setError("Invalid email or password");
-      toast.error("Invalid email or password");
+      setError(translations.invalidCredentials);
+      toast.error(translations.invalidCredentials);
     } else {
       setError("");
-      toast.success("Successful login");
+      toast.success(translations.successfulLogin);
       router.replace("/userBooks");
     }
   };
@@ -90,7 +111,7 @@ export default function LoginForm() {
   if (sessionStatus === "loading") {
     return (
       <div className="flex justify-center items-center h-screen bg-rose-50 text-rose-800">
-        Loading...
+        {translations.loading}
       </div>
     );
   }
@@ -101,17 +122,17 @@ export default function LoginForm() {
         <Card className="w-full max-w-md bg-white shadow-lg">
           <CardHeader className="space-y-2 pb-4">
             <CardTitle className="text-2xl font-bold text-center text-rose-800">
-              Sign in to your account
+              {translations.signInToAccount}
             </CardTitle>
             <CardDescription className="text-center text-rose-600">
-              Enter your email below to login to your account
+              {translations.enterEmailToLogin}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-rose-700">
-                  Email address
+                  {translations.emailAddress}
                 </Label>
                 <Input
                   id="email"
@@ -124,7 +145,7 @@ export default function LoginForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-rose-700">
-                  Password
+                  {translations.password}
                 </Label>
                 <Input
                   id="password"
@@ -140,17 +161,17 @@ export default function LoginForm() {
                 type="submit"
                 className="w-full bg-rose-600 hover:bg-rose-700 text-white"
               >
-                Sign in
+                {translations.signIn}
               </Button>
             </form>
             <div className="mt-4 text-center text-sm">
               <p className="text-rose-600">
-                Dont have an account?{" "}
+                {translations.dontHaveAccount}{" "}
                 <Link
                   href="/register"
                   className="font-medium text-rose-800 hover:underline"
                 >
-                  Register here
+                  {translations.registerHere}
                 </Link>
               </p>
             </div>
@@ -164,7 +185,7 @@ export default function LoginForm() {
                 onClick={() => signIn("google")}
               >
                 <FcGoogle className="mr-2 h-4 w-4" />
-                Sign in with Google
+                {translations.signInWithGoogle}
               </Button>
               <Button
                 variant="outline"
@@ -183,7 +204,7 @@ export default function LoginForm() {
                     clipRule="evenodd"
                   />
                 </svg>
-                Sign in with GitHub
+                {translations.signInWithGitHub}
               </Button>
             </div>
           </CardFooter>

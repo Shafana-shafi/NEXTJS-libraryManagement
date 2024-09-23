@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
 
 interface GenreDropdownProps {
   genres: string[];
@@ -16,6 +17,7 @@ interface GenreDropdownProps {
 
 export default function GenreDropdown({ genres }: GenreDropdownProps) {
   const router = useRouter();
+  const t = useTranslations("search");
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
 
   const truncateText = (text: string, maxLength: number) => {
@@ -37,7 +39,7 @@ export default function GenreDropdown({ genres }: GenreDropdownProps) {
     >
       <SelectTrigger className="w-[180px]">
         <div className="truncate">
-          {selectedGenre ? truncateText(selectedGenre, 6) : "Select Genre"}
+          {selectedGenre ? truncateText(selectedGenre, 6) : t("selectGenre")}
         </div>
       </SelectTrigger>
       <SelectContent>

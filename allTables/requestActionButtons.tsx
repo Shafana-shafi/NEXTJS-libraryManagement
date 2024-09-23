@@ -1,8 +1,10 @@
+// File: app/[locale]/components/requestActionButtons.tsx
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast"; // Import useToast
+import { useToast } from "@/components/ui/use-toast";
+import { useTranslations } from "next-intl";
 
 interface RequestActionButtonsProps {
   requestId: number;
@@ -23,7 +25,7 @@ interface RequestActionButtonsProps {
     memberId: number,
     bookId: number,
     requestId: number
-  ) => Promise<void>; // Add handler for return action
+  ) => Promise<void>;
   returnDate: string | null;
 }
 
@@ -39,23 +41,24 @@ export function RequestActionButtons({
 }: RequestActionButtonsProps) {
   const isRequested = status === "requested";
   const [isPending, setIsPending] = useState(false);
-  const { toast } = useToast(); // Use the toast hook
+  const { toast } = useToast();
+  const t = useTranslations("RequestActionButtons");
 
   const handleAccept = async () => {
     setIsPending(true);
     try {
       await onAccept(memberId, bookId, requestId);
       toast({
-        title: "Request Accepted",
-        description: `The request for book ${bookId} has been accepted.`,
-        duration: 1000,
+        title: t("requestAccepted"),
+        description: t("requestAcceptedDescription", { bookId }),
         className: "bg-green-500",
+        duration: 1000,
       });
     } catch (error) {
       console.error("Error accepting request:", error);
       toast({
-        title: "Accept Failed",
-        description: "Unable to accept the request. Please try again.",
+        title: t("acceptFailed"),
+        description: t("acceptFailedDescription"),
         variant: "destructive",
         duration: 1000,
       });
@@ -68,16 +71,16 @@ export function RequestActionButtons({
     try {
       await onDecline(memberId, bookId, requestId);
       toast({
-        title: "Request Declined",
-        description: `The request for book ${bookId} has been declined.`,
+        title: t("requestDeclined"),
+        description: t("requestDeclinedDescription", { bookId }),
+        className: "bg-green-500",
         duration: 1000,
-        className: "bg-red-500",
       });
     } catch (error) {
       console.error("Error declining request:", error);
       toast({
-        title: "Decline Failed",
-        description: "Unable to decline the request. Please try again.",
+        title: t("declineFailed"),
+        description: t("declineFailedDescription"),
         variant: "destructive",
         duration: 1000,
       });
@@ -90,16 +93,16 @@ export function RequestActionButtons({
     try {
       await onReturn(memberId, bookId, requestId);
       toast({
-        title: "Book Returned",
-        description: `The book ${bookId} has been successfully returned.`,
-        duration: 1000,
+        title: t("bookReturned"),
+        description: t("bookReturnedDescription", { bookId }),
         className: "bg-blue-500",
+        duration: 1000,
       });
     } catch (error) {
       console.error("Error processing return:", error);
       toast({
-        title: "Return Failed",
-        description: "Unable to process the return. Please try again.",
+        title: t("returnFailed"),
+        description: t("returnFailedDescription"),
         variant: "destructive",
         duration: 1000,
       });
@@ -115,7 +118,7 @@ export function RequestActionButtons({
         size="sm"
         className="bg-green-600"
       >
-        Accept
+        {t("accept")}
       </Button>
       <Button
         onClick={handleDecline}
@@ -123,7 +126,7 @@ export function RequestActionButtons({
         variant="destructive"
         size="sm"
       >
-        Decline
+        {t("decline")}
       </Button>
       <Button
         onClick={handleReturn}
@@ -132,7 +135,7 @@ export function RequestActionButtons({
         variant="secondary"
         size="sm"
       >
-        Return
+        {t("return")}
       </Button>
     </div>
   );

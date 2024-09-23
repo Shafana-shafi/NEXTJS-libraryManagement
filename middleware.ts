@@ -40,7 +40,7 @@ const intlMiddleware = createIntlMiddleware(routing);
 export async function middleware(req: NextRequest) {
   // First, extract the path and locale information
   const pathname = req.nextUrl.pathname;
-  const pathnameWithoutLocale = pathname.replace(/^\/(?:kn|en)/, ""); // Assuming "kn" and "en" are your locales
+  const pathnameWithoutLocale = pathname.replace(/^\/(?:en|kn)/, ""); // Assuming "kn" and "en" are your locales
 
   // Check for user or admin route protection before running the i18n middleware
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });

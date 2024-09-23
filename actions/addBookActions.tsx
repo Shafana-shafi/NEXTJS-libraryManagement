@@ -22,18 +22,13 @@ export async function handleAddBook(data: iBook) {
   if (Object.keys(newErrors).length > 0) {
     return { success: false, errors: newErrors };
   }
-
-  try {
-    console.log(data);
-    const result = await createBook(data);
-    if (result) {
-      redirect("/userBooks");
-    }
-    return { success: true, error: "Failed to add book" };
-  } catch (error) {
-    console.error("Failed to add book:", error);
-    return { success: false, error: "Failed to add book" };
-  } finally {
+  const result = await createBook(data);
+  if (result.success) {
     redirect("/adminBooks");
+  } else {
+    return {
+      success: false,
+      message: result.message || "Failed to add Book. Please try again.",
+    };
   }
 }

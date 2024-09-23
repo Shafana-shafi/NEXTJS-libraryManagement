@@ -11,18 +11,19 @@ import { getServerSession } from "next-auth/next";
 import { revalidatePath } from "next/cache";
 
 const today = new Date();
-const session = await getServerSession(authOptions);
+// const session = await getServerSession(authOptions);
 
-const isAdmin = session?.user.role === "admin";
+// const isAdmin = session?.user.role === "admin";
 
 export async function handleAccept(
   memberId: number,
   bookId: number,
   requestId: number
 ) {
-  if (!isAdmin) {
-    throw new Error("Unauthorized");
-  }
+  "use server";
+  // if (!isAdmin) {
+  //   throw new Error("Unauthorized");
+  // }
   await updateRequestStatus(
     memberId,
     bookId,
@@ -40,9 +41,10 @@ export async function handleDecline(
   bookId: number,
   requestId: number
 ) {
-  if (!isAdmin) {
-    throw new Error("Unauthorized");
-  }
+  "use server";
+  // if (!isAdmin) {
+  //   throw new Error("Unauthorized");
+  // }
   await updateRequestStatus(
     memberId,
     bookId,
@@ -60,9 +62,9 @@ export async function handleReturn(
   requestId: number
 ) {
   "use server";
-  if (!isAdmin) {
-    throw new Error("Unauthorized");
-  }
+  // if (!isAdmin) {
+  //   throw new Error("Unauthorized");
+  // }
   await updateRequestStatusOnReturn(
     memberId,
     bookId,

@@ -1,3 +1,4 @@
+// File: app/[locale]/components/requestFilterComponent.tsx
 "use client";
 
 import { useState, useCallback } from "react";
@@ -22,28 +23,29 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Filter } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface FilterOption {
   label: string;
   value: string;
 }
 
-const statusOptions: FilterOption[] = [
-  { label: "Requested", value: "requested" },
-  { label: "Success", value: "success" },
-  { label: "Declined", value: "declined" },
-  { label: "Returned", value: "returned" },
-];
-
-const dateRangeOptions: FilterOption[] = [
-  { label: "Today", value: "today" },
-  { label: "Yesterday", value: "yesterday" },
-  { label: "Past Week", value: "past_week" },
-];
-
 export function RequestFilterComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("RequestFilterComponent");
+
+  const statusOptions: FilterOption[] = [
+    { label: t("requested"), value: "requested" },
+    { label: t("success"), value: "success" },
+    { label: t("declined"), value: "declined" },
+    { label: t("returned"), value: "returned" },
+  ];
+
+  const dateRangeOptions: FilterOption[] = [
+    { label: t("today"), value: "today" },
+    { label: t("yesterday"), value: "yesterday" },
+  ];
 
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [requestDate, setRequestDate] = useState<Date | undefined>(undefined);
@@ -117,16 +119,16 @@ export function RequestFilterComponent() {
       <DialogTrigger asChild>
         <Button variant="outline">
           <Filter className="mr-2 h-4 w-4" />
-          Filter
+          {t("filter")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Filter Requests</DialogTitle>
+          <DialogTitle>{t("filterRequests")}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status">{t("status")}</Label>
             <div className="flex flex-wrap gap-2">
               {statusOptions.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
@@ -146,35 +148,38 @@ export function RequestFilterComponent() {
             </div>
           </div>
           <DateFilter
-            label="Request Date"
+            label={t("requestDate")}
             date={requestDate}
             setDate={setRequestDate}
             dateRange={requestDateRange}
             setDateRange={setRequestDateRange}
             handleDateRangeChange={handleDateRangeChange}
+            dateRangeOptions={dateRangeOptions}
           />
           <DateFilter
-            label="Issued Date"
+            label={t("issuedDate")}
             date={issuedDate}
             setDate={setIssuedDate}
             dateRange={issuedDateRange}
             setDateRange={setIssuedDateRange}
             handleDateRangeChange={handleDateRangeChange}
+            dateRangeOptions={dateRangeOptions}
           />
           <DateFilter
-            label="Returned Date"
+            label={t("returnedDate")}
             date={returnedDate}
             setDate={setReturnedDate}
             dateRange={returnedDateRange}
             setDateRange={setReturnedDateRange}
             handleDateRangeChange={handleDateRangeChange}
+            dateRangeOptions={dateRangeOptions}
           />
         </div>
         <div className="flex justify-between">
           <Button variant="outline" onClick={resetFilters}>
-            Reset Filters
+            {t("resetFilters")}
           </Button>
-          <Button onClick={applyFilters}>Apply Filters</Button>
+          <Button onClick={applyFilters}>{t("applyFilters")}</Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -191,6 +196,7 @@ interface DateFilterProps {
     value: string,
     setter: React.Dispatch<React.SetStateAction<string | undefined>>
   ) => void;
+  dateRangeOptions: FilterOption[];
 }
 
 function DateFilter({
@@ -200,7 +206,10 @@ function DateFilter({
   dateRange,
   setDateRange,
   handleDateRangeChange,
+  dateRangeOptions,
 }: DateFilterProps) {
+  const t = useTranslations("RequestFilterComponent");
+
   return (
     <div className="grid gap-2">
       <Label>{label}</Label>
@@ -228,7 +237,7 @@ function DateFilter({
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : "Pick a date"}
+            {date ? format(date, "PPP") : t("pickADate")}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">

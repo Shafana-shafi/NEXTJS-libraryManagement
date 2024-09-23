@@ -1,24 +1,11 @@
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
-import type { NextAuthOptions } from "next-auth";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../lib/authOptions";
-import { books, members, requests, transactions } from "@/db/schema";
-import {
-  eq,
-  and,
-  or,
-  count,
-  isNotNull,
-  inArray,
-  ilike,
-  asc,
-  like,
-} from "drizzle-orm";
+import { sql as mysql } from "drizzle-orm";
+import { books, members, requests } from "@/db/schema";
+import { format } from "date-fns";
+import { eq, and, or, count, isNotNull, inArray, ilike } from "drizzle-orm";
 import chalk from "chalk";
-import { iBook, iBookB, iBookBase } from "@/models/book.model";
-import { iRequest, iRequestBase } from "@/models/request.model";
-import { PgSelect } from "drizzle-orm/pg-core";
+import { iRequestBase } from "@/models/request.model";
 import * as schema from "../db/schema";
 
 export const db = drizzle(sql, { schema });
@@ -52,10 +39,10 @@ type FilteredRequest = {
   id: number;
   memberId: number;
   bookId: number;
-  requestDate: Date;
+  requestDate: string;
   status: string;
-  issuedDate: Date | null;
-  returnDate: Date | null;
+  issuedDate: string | null;
+  returnDate: string | null;
   memberFirstName: string;
   memberLastName: string;
   bookTitle: string;
@@ -228,63 +215,72 @@ export async function fetchAllRequests(
       .from(requests)
       .innerJoin(members, eq(requests.memberId, members.id))
       .innerJoin(books, eq(requests.bookId, books.id))
+      .where(
+        or(
+          ilike(members.firstName, `%${query}%`),
+          ilike(members.lastName, `%${query}%`),
+          ilike(requests.status, `%${query}%`),
+          ilike(books.title, `%${query}%`)
+        )
+      )
       .$dynamic();
 
     const conditions = [
-      or(
-        ilike(members.firstName, `%${query}%`),
-        ilike(members.lastName, `%${query}%`),
-        ilike(books.title, `%${query}%`),
-        // like(requests.bookId, `%${query}%`),
-        // like(requests.requestDate, `%${query}%`),
-        // like(requests.issuedDate, `%${query}%`),
-        // like(requests.returnDate, `%${query}%`),
-        ilike(requests.status, `%${query}%`)
-      ),
+      // or(
+      //   ilike(members.firstName, `%${query}%`),
+      //   ilike(members.lastName, `%${query}%`),
+      //   ilike(requests.status, `%${query}%`),
+      //   ilike(books.title, `%${query}%`)
+      // ),
     ];
 
     if (filters.status && filters.status.length > 0) {
       conditions.push(inArray(requests.status, filters.status));
     }
 
-    // if (filters.requestDate) {
-    //   conditions.push(
-    //     eq(requests.requestDate, filters.requestDate.toISOString())
-    //   );
-    // }
-    // if (filters.issuedDate) {
-    //   conditions.push(
-    //     eq(requests.issuedDate, filters.issuedDate.toDateString())
-    //   );
-    // }
-    // if (filters.returnedDate) {
-    //   conditions.push(
-    //     eq(requests.returnDate, filters.returnedDate.toDateString())
-    //   );
-    // }
+    const formattedRequestDate = filters.requestDate
+      ? format(filters.requestDate, "yyyy-MM-dd")
+      : undefined;
+
+    const formattedIssuedDate = filters.issuedDate
+      ? format(filters.issuedDate, "yyyy-MM-dd")
+      : undefined;
+
+    const formattedReturnDate = filters.returnedDate
+      ? format(filters.returnedDate, "yyyy-MM-dd")
+      : undefined;
+
+    if (formattedRequestDate) {
+      conditions.push(eq(requests.requestDate, formattedRequestDate));
+    }
+    if (formattedIssuedDate) {
+      conditions.push(eq(requests.issuedDate, formattedIssuedDate));
+    }
+    if (formattedReturnDate) {
+      conditions.push(eq(requests.returnDate, formattedReturnDate));
+    }
 
     baseQuery = baseQuery.where(and(...conditions));
 
     const allRequests = await baseQuery
       .where(and(...conditions))
-      // .orderBy(
-      //   sql`CASE
-      //     WHEN ${requests.status} = 'requested' THEN 1
-      //     WHEN ${requests.status} = 'success' THEN 2
-      //     WHEN ${requests.status} = 'declined' THEN 3
-      //     WHEN ${requests.status} = 'returned' THEN 4
-      //     ELSE 5
-      //   END`
-      //   asc(requests.requestDate)
-      //)
+      .orderBy(
+        mysql`CASE
+          WHEN ${requests.status} = 'requested' THEN 1
+          WHEN ${requests.status} = 'success' THEN 2
+          WHEN ${requests.status} = 'declined' THEN 3
+          WHEN ${requests.status} = 'returned' THEN 4
+          ELSE 5
+        END`
+      )
       .limit(limit)
       .offset(offset);
 
     return allRequests.map((request) => ({
       ...request,
-      requestDate: new Date(request.requestDate),
-      issuedDate: request.issuedDate ? new Date(request.issuedDate) : null,
-      returnDate: request.returnDate ? new Date(request.returnDate) : null,
+      requestDate: request.requestDate,
+      issuedDate: request.issuedDate ? request.issuedDate : null,
+      returnDate: request.returnDate ? request.returnDate : null,
     }));
   } catch (error) {
     console.error("Error fetching requests:", error);
@@ -374,21 +370,103 @@ export async function fetchFilteredUserRequests(
       // baseQuery = baseQuery.where(and(...conditions));
 
       const paginatedRequests = await baseQuery
-        .orderBy(asc(requests.requestDate))
+        .orderBy(
+          mysql`CASE 
+          WHEN ${requests.status} = 'requested' THEN 1
+          WHEN ${requests.status} = 'success' THEN 2
+          WHEN ${requests.status} = 'declined' THEN 3
+          WHEN ${requests.status} = 'returned' THEN 4
+          ELSE 5 
+        END`
+        )
         .limit(6)
         .offset(offset);
 
-      return paginatedRequests.map((request) => ({
-        ...request,
-        requestDate: new Date(request.requestDate),
-        issuedDate: request.issuedDate ? new Date(request.issuedDate) : null,
-        returnDate: request.returnDate ? new Date(request.returnDate) : null,
-      }));
+      // return paginatedRequests.map((request) => ({
+      //   ...request,
+      //   requestDate: new Date(request.requestDate),
+      //   issuedDate: request.issuedDate ? new Date(request.issuedDate) : null,
+      //   returnDate: request.returnDate ? new Date(request.returnDate) : null,
+      // }));
+      return paginatedRequests;
     });
     console.log(allRequests, "all requests");
     return allRequests;
   } catch (error) {
     console.error("Error fetching requests:", error);
+    throw error;
+  }
+}
+
+export async function fetchOverdueRequests(query: string, currentPage: number) {
+  const itemsPerPage = 6;
+  const offset = (currentPage - 1) * itemsPerPage;
+
+  try {
+    const result = await db.transaction(async (transaction) => {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      let baseQuery = transaction
+        .select({
+          id: requests.id,
+          memberId: requests.memberId,
+          bookId: requests.bookId,
+          requestDate: requests.requestDate,
+          issuedDate: requests.issuedDate,
+          returnDate: requests.returnDate,
+          status: requests.status,
+          memberFirstName: members.firstName,
+          memberLastName: members.lastName,
+          memberEmail: members.email,
+          bookTitle: books.title,
+        })
+        .from(requests)
+        .innerJoin(members, eq(requests.memberId, members.id))
+        .innerJoin(books, eq(requests.bookId, books.id))
+        .where(
+          and(
+            or(
+              ilike(members.firstName, `%${query}%`),
+              ilike(members.lastName, `%${query}%`),
+              ilike(books.title, `%${query}%`)
+            ),
+            eq(requests.status, "success"),
+            mysql`${requests.issuedDate} < ${sevenDaysAgo}`,
+            mysql`${requests.returnDate} IS NULL`
+          )
+        );
+
+      const totalCountQuery = transaction
+        .select({ count: mysql`COUNT(*)` })
+        .from(baseQuery.as("subquery"));
+
+      const [overdueRequests, [{ count }]] = await Promise.all([
+        baseQuery
+          .orderBy(requests.issuedDate)
+          .limit(itemsPerPage)
+          .offset(offset),
+        totalCountQuery,
+      ]);
+
+      const totalPages = Math.ceil(Number(count) / itemsPerPage);
+
+      // Calculate daysOverdue for each request
+      const overdueRequestsWithDays = overdueRequests.map((request) => {
+        const issuedDate = new Date(request.issuedDate || "");
+        const today = new Date();
+        const daysOverdue = Math.floor(
+          (today.getTime() - issuedDate.getTime()) / (1000 * 3600 * 24)
+        );
+        return { ...request, daysOverdue };
+      });
+
+      return { overdueRequests: overdueRequestsWithDays, totalPages };
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching overdue requests:", error);
     throw error;
   }
 }
