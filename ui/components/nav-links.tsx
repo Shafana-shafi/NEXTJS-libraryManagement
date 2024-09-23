@@ -18,12 +18,12 @@ export default function NavLinks({ links }: NavLinksProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    // Prefetch all links
-    links.forEach((link) => {
-      router.prefetch(link.href);
-    });
-  }, [links, router]);
+  // useEffect(() => {
+  //   // Prefetch all links
+  //   links.forEach((link) => {
+  //     router.prefetch(link.href);
+  //   });
+  // }, [links, router]);
 
   const handleClick = (
     e: React.MouseEvent<HTMLAnchorElement>,

@@ -116,7 +116,6 @@ export function RequestActionButtons({
         onClick={handleAccept}
         disabled={!isRequested || isPending}
         size="sm"
-        className="bg-green-600"
       >
         {t("accept")}
       </Button>
