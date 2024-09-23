@@ -45,6 +45,7 @@ export default function NavLinks({ links }: NavLinksProps) {
             key={link.href}
             href={link.href}
             onClick={(e) => handleClick(e, link.href)}
+            prefetch={true}
             className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${
               isActive
                 ? "bg-sky-100 text-blue-600"
