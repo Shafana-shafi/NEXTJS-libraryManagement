@@ -14,16 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { updateProfile } from "@/actions/updateProfileAction";
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Edit2,
-  Briefcase,
-  CreditCard,
-} from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Briefcase, CreditCard, Mail, MapPin, Phone } from "lucide-react";
 
 interface User {
   id: string;
@@ -57,11 +49,11 @@ export default function ProfileForm({
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: user.firstName || "",
-    lastName: user.lastName || "",
-    phone: user.phone || "",
-    address: user.address || "",
+    phone: user.phone || completeUserInfo?.phoneNumber || "",
+    address: user.address || completeUserInfo?.address || "",
+    password: "",
   });
+
   const router = useRouter();
   const { toast } = useToast();
   const t = useTranslations("ProfileForm");
@@ -73,15 +65,34 @@ export default function ProfileForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Avoid sending empty fields for phone and address
+    const updateData = {
+      ...(formData.phone && { phone: formData.phone }),
+      ...(formData.address && { address: formData.address }),
+      ...(formData.password && { password: formData.password }), // Include password only if provided
+    };
+
+    if (Object.keys(updateData).length === 0) {
+      toast({
+        title: t("updateFailed"),
+        description: t("noChangesMade"),
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
     try {
-      const result = await updateProfile(formData);
+      const result = await updateProfile(updateData);
+
       if (result.success) {
         setIsDialogOpen(false);
         toast({
           title: t("profileUpdated"),
           description: result.message,
           duration: 3000,
-          className: "bg-rose-500 text-white",
+          className: "bg-green-500 text-white",
         });
         router.refresh();
       } else {
@@ -124,7 +135,6 @@ export default function ProfileForm({
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-                    <Edit2 className="h-5 w-5 mr-2" />
                     {t("editProfile")}
                   </Button>
                 </DialogTrigger>
@@ -135,44 +145,10 @@ export default function ProfileForm({
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label
-                          htmlFor="firstName"
-                          className="block text-sm font-medium text-rose-700 mb-1"
-                        >
-                          {t("firstName")}
-                        </label>
-                        <input
-                          id="firstName"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-rose-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
-                          placeholder={t("firstName")}
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="lastName"
-                          className="block text-sm font-medium text-rose-700 mb-1"
-                        >
-                          {t("lastName")}
-                        </label>
-                        <input
-                          id="lastName"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-rose-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
-                          placeholder={t("lastName")}
-                        />
-                      </div>
-                    </div>
                     <div>
                       <label
                         htmlFor="phone"
-                        className="block text-sm font-medium text-rose-700 mb-1"
+                        className="block text-sm font-medium text-rose-700mb-1"
                       >
                         {t("phone")}
                       </label>
@@ -199,6 +175,23 @@ export default function ProfileForm({
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 border border-rose-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
                         placeholder={t("address")}
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="password"
+                        className="block text-sm font-medium text-rose-700 mb-1"
+                      >
+                        {t("password")}
+                      </label>
+                      <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-rose-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
+                        placeholder={t("password")}
                       />
                     </div>
                     <Button

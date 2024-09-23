@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface NavLink {
   name: string;
@@ -15,23 +16,39 @@ interface NavLinksProps {
 
 export default function NavLinks({ links }: NavLinksProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Prefetch all links
+    links.forEach((link) => {
+      router.prefetch(link.href);
+    });
+  }, [links, router]);
+
+  const handleClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    router.push(href);
+  };
 
   return (
     <nav className="flex flex-col space-y-2">
       {links.map((link) => {
-        // Ensure pathname and href are compared correctly
         const isActive =
           pathname === link.href || pathname.startsWith(link.href);
         const Icon = link.icon;
 
         return (
           <Link
-            key={link.href} // Use href as key for better consistency
+            key={link.href}
             href={link.href}
+            onClick={(e) => handleClick(e, link.href)}
             className={`flex items-center p-2 rounded-lg transition-colors duration-200 ${
               isActive
-                ? "bg-sky-100 text-blue-600" // Active state styles
-                : "bg-gray-50 text-gray-700 hover:bg-sky-50 hover:text-blue-600" // Inactive state styles
+                ? "bg-sky-100 text-blue-600"
+                : "bg-gray-50 text-gray-700 hover:bg-sky-50 hover:text-blue-600"
             }`}
           >
             <div className="flex items-center justify-center w-8 h-8">

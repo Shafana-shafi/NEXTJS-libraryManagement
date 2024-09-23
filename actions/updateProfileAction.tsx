@@ -1,14 +1,15 @@
 "use server";
-
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { updateMemberForProfile } from "@/repositories/user.repository";
+import {
+  updateMemberForProfile,
+  updateMemberPassword,
+} from "@/repositories/user.repository";
 
 interface UpdateProfileData {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  address: string;
+  phone?: string;
+  address?: string;
+  password?: string;
 }
 
 export async function updateProfile(data: UpdateProfileData) {
@@ -21,21 +22,36 @@ export async function updateProfile(data: UpdateProfileData) {
   const userId = session.user.id;
 
   try {
-    const updatedMember = await updateMemberForProfile(Number(userId), {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phone: data.phone,
-      address: data.address,
-    });
+    // Prepare the update object
+    const updateFields: Partial<UpdateProfileData> = {};
 
-    if (!updatedMember) {
-      return { success: false, message: "Member not found" };
+    if (data.phone && data.phone.trim() !== "") {
+      updateFields.phone = data.phone;
+    }
+    if (data.address && data.address.trim() !== "") {
+      updateFields.address = data.address;
+    }
+
+    // Update phone and address if present
+    if (Object.keys(updateFields).length > 0) {
+      const updatedMember = await updateMemberForProfile(
+        Number(userId),
+        updateFields
+      );
+
+      if (!updatedMember) {
+        return { success: false, message: "Member not found" };
+      }
+    }
+
+    // Update password if provided
+    if (data.password && data.password.trim() !== "") {
+      await updateMemberPassword(Number(userId), data.password);
     }
 
     return {
       success: true,
       message: "Profile updated successfully",
-      data: updatedMember,
     };
   } catch (error) {
     console.error("Failed to update profile:", error);

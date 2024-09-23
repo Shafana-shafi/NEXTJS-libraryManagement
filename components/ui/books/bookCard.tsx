@@ -52,7 +52,7 @@ export default function BookCard({
       if (result.success) {
         toast({
           title: "Book Requested",
-          description: `Your request for "₹{title}" has been submitted.`,
+          description: `Your request for ${title} has been submitted.`,
           duration: 3000,
           className: "bg-green-500 text-white",
         });

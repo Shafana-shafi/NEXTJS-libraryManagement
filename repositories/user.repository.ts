@@ -7,7 +7,7 @@ import { books, members, transactions } from "@/db/schema";
 import { eq, and, ilike, or, count } from "drizzle-orm";
 import chalk from "chalk";
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
+import bcrypt, { hash } from "bcryptjs";
 import {
   iMember,
   iMemberB,
@@ -82,8 +82,10 @@ export async function register(memberData: RegisteredMemberInterface) {
     }
 
     // If no existing member, proceed with registration
-    const password = memberData.password as string;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    let hashedPassword = null;
+    if (memberData.password && memberData.password.length > 0) {
+      hashedPassword = await bcrypt.hash(memberData.password, 10);
+    }
 
     await db.insert(members).values({
       ...memberData,
@@ -360,6 +362,8 @@ export async function updateMemberForProfile(id: number, data: updateProfile) {
       .where(eq(members.id, id))
       .limit(1);
 
+    console.log(data, "in profile repo");
+
     if (existingMembers.length === 0) {
       console.log("---NO MEMBER FOUND---");
       return null;
@@ -376,4 +380,13 @@ export async function updateMemberForProfile(id: number, data: updateProfile) {
     console.error("Error updating member:", error);
     throw error;
   }
+}
+
+export async function updateMemberPassword(userId: number, password: string) {
+  const hashedPassword = await hash(password, 10);
+  await db
+    .update(members)
+    .set({ password: hashedPassword })
+    .where(eq(members.id, userId))
+    .execute();
 }

@@ -110,15 +110,20 @@ export const authOptions: NextAuthOptions = {
             firstName: token.name || "",
             lastName: token.name || "",
             email: token.email || "",
-            password: null,
+            password: "",
             phoneNumber: null,
             address: null,
             role: "user",
             membershipStatus: "active",
           };
+          console.log("before register");
           await register(newUser);
+          console.log("after register");
           token.role = "user";
           token.membershipStatus = "active";
+          const dbFromUser = await getUserByEmail(email);
+          const id = dbFromUser?.id.toString();
+          token.id = id || "";
         }
       } else if (user) {
         token.id = user.id;

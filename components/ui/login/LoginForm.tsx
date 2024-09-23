@@ -6,7 +6,6 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "react-hot-toast";
-import { getUserByEmail } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +43,7 @@ export default function LoginForm({
 }) {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Loading state for form submission
   const { data: session, status: sessionStatus } = useSession();
 
   useEffect(() => {
@@ -53,12 +53,14 @@ export default function LoginForm({
         if (userRole === undefined) {
           return;
         } else {
+          setIsLoading(true);
           if (userRole === "user") {
             router.replace("/userBooks");
           }
           if (userRole === "admin") {
             router.replace("/adminBooks");
           }
+          setIsLoading(false);
         }
       }
     };
@@ -73,6 +75,8 @@ export default function LoginForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true); // Start loading
+
     const email = (
       e.currentTarget.elements.namedItem("email") as HTMLInputElement
     ).value;
@@ -83,12 +87,14 @@ export default function LoginForm({
     if (!isValidEmail(email)) {
       setError(translations.invalidEmail);
       toast.error(translations.invalidEmail);
+      setIsLoading(false); // Stop loading on error
       return;
     }
 
     if (!password || password.length < 8) {
       setError(translations.invalidPassword);
       toast.error(translations.invalidPassword);
+      setIsLoading(false); // Stop loading on error
       return;
     }
 
@@ -106,9 +112,18 @@ export default function LoginForm({
       toast.success(translations.successfulLogin);
       router.replace("/userBooks");
     }
+
+    setIsLoading(false); // Stop loading after authentication completes
   };
 
-  if (sessionStatus === "loading") {
+  const handleSocialSignIn = async (provider: string) => {
+    setIsLoading(true); // Start loading
+    await signIn(provider);
+    setIsLoading(false); // Stop loading when signIn completes
+  };
+
+  if (sessionStatus === "loading" || isLoading) {
+    // Show loading state when waiting for session or when any action is in progress
     return (
       <div className="flex justify-center items-center h-screen bg-rose-50 text-rose-800">
         {translations.loading}
@@ -160,8 +175,9 @@ export default function LoginForm({
               <Button
                 type="submit"
                 className="w-full bg-rose-600 hover:bg-rose-700 text-white"
+                disabled={isLoading} // Disable button when loading
               >
-                {translations.signIn}
+                {isLoading ? translations.loading : translations.signIn}
               </Button>
             </form>
             <div className="mt-4 text-center text-sm">
@@ -182,29 +198,43 @@ export default function LoginForm({
               <Button
                 variant="outline"
                 className="w-full text-rose-700 hover:text-rose-800 border-rose-300 hover:bg-rose-50"
-                onClick={() => signIn("google")}
+                onClick={() => handleSocialSignIn("google")}
+                disabled={isLoading} // Disable while loading
               >
-                <FcGoogle className="mr-2 h-4 w-4" />
-                {translations.signInWithGoogle}
+                {isLoading ? (
+                  translations.loading
+                ) : (
+                  <>
+                    <FcGoogle className="mr-2 h-4 w-4" />{" "}
+                    {translations.signInWithGoogle}
+                  </>
+                )}
               </Button>
               <Button
                 variant="outline"
                 className="w-full text-rose-700 hover:text-rose-800 border-rose-300 hover:bg-rose-50"
-                onClick={() => signIn("github")}
+                onClick={() => handleSocialSignIn("github")}
+                disabled={isLoading} // Disable while loading
               >
-                <svg
-                  className="mr-2 h-4 w-4"
-                  aria-hidden="true"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.156-1.109-1.465-1.109-1.465-.907-.622.068-.609.068-.609 1.002.071 1.53 1.035 1.53 1.035.892 1.534 2.341 1.091 2.91.834.091-.648.349-1.092.636-1.343-2.22-.255-4.555-1.113-4.555-4.951 0-1.093.389-1.987 1.029-2.688-.103-.256-.446-1.283.097-2.674 0 0 .84-.27 2.75 1.026A9.573 9.573 0 0 1 10 5.84c.853.004 1.71.115 2.51.338 1.91-1.296 2.75-1.026 2.75-1.026.543 1.391.2 2.418.098 2.674.641.701 1.028 1.595 1.028 2.688 0 3.846-2.338 4.692-4.566 4.943.36.311.679.924.679 1.861 0 1.343-.012 2.426-.012 2.757 0 .269.18.579.688.481C17.135 18.195 20 14.44 20 10.017 20 4.484 15.523 0 10 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                {translations.signInWithGitHub}
+                {isLoading ? (
+                  translations.loading
+                ) : (
+                  <>
+                    <svg
+                      className="mr-2 h-4 w-4"
+                      aria-hidden="true"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.156-1.109-1.465-1.109-1.465-.907-.622.068-.609.068-.609 1.002.071 1.53 1.035 1.53 1.035.892 1.534 2.341 1.091 2.91.834.091-.648.349-1.092.636-1.343-2.22-.255-4.555-1.113-4.555-4.951 0-1.093.389-1.987 1.029-2.688-.103-.255-.446-1.28.098-2.664 0 0 .84-.269 2.751 1.025A9.62 9.62 0 0110 4.765c.851.004 1.71.114 2.511.335 1.911-1.294 2.75-1.025 2.75-1.025.545 1.384.202 2.409.1 2.664.64.7 1.028 1.595 1.028 2.688 0 3.848-2.338 4.693-4.567 4.944.359.31.678.922.678 1.857 0 1.34-.012 2.42-.012 2.75 0 .267.181.578.688.48C17.136 18.195 20 14.44 20 10.017 20 4.484 15.523 0 10 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>{" "}
+                    {translations.signInWithGitHub}
+                  </>
+                )}
               </Button>
             </div>
           </CardFooter>

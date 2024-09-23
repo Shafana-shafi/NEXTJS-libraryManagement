@@ -2,8 +2,8 @@
 
 import { Link, useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogIn, Globe } from "lucide-react";
-import { ReactNode } from "react";
+import { BookOpen, LogIn, Globe, Loader } from "lucide-react"; // Add Loader Icon
+import { ReactNode, useState } from "react"; // Import useState
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,9 +35,15 @@ export default function LandingPageClient({
   locale: string;
 }) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false); // Loading state
 
   const changeLanguage = (newLocale: string) => {
     router.push("/", { locale: newLocale });
+  };
+
+  const handleLoginClick = () => {
+    setLoading(true); // Set loading to true
+    router.push("/login");
   };
 
   return (
@@ -87,15 +93,26 @@ export default function LandingPageClient({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link href="/login">
-            <Button
-              size="sm"
-              className="bg-rose-600 hover:bg-rose-700 text-white"
-            >
-              <LogIn className="mr-2 h-4 w-4" />
-              {translations.loginRegister}
-            </Button>
-          </Link>
+
+          {/* Loading state for login button */}
+          <Button
+            size="sm"
+            className="bg-rose-600 hover:bg-rose-700 text-white"
+            onClick={handleLoginClick}
+            disabled={loading} // Disable button while loading
+          >
+            {loading ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" /> {/* Spinner */}
+                Loading...
+              </>
+            ) : (
+              <>
+                <LogIn className="mr-2 h-4 w-4" />
+                {translations.loginRegister}
+              </>
+            )}
+          </Button>
         </div>
       </header>
 
@@ -110,15 +127,25 @@ export default function LandingPageClient({
               {translations.description}
             </p>
             <div className="flex justify-center space-x-4">
-              <Link href="/login">
-                <Button
-                  size="lg"
-                  className="bg-rose-600 hover:bg-rose-700 text-white"
-                >
-                  <LogIn className="mr-2 h-5 w-5" />
-                  {translations.loginRegister}
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                className="bg-rose-600 hover:bg-rose-700 text-white"
+                onClick={handleLoginClick}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader className="mr-2 h-5 w-5 animate-spin" />{" "}
+                    {/* Spinner */}
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-5 w-5" />
+                    {translations.loginRegister}
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </section>
@@ -148,10 +175,4 @@ export default function LandingPageClient({
       </footer>
     </div>
   );
-}
-
-interface FeatureCardProps {
-  icon: ReactNode;
-  title: string;
-  description: string;
 }
