@@ -8,6 +8,7 @@ import { getUserByEmail } from "./actions";
 
 // Extend the built-in types for NextAuth
 import { DefaultSession, DefaultUser } from "next-auth";
+import { register } from "@/repositories/user.repository";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -105,6 +106,17 @@ export const authOptions: NextAuthOptions = {
         } else {
           // Handle new user registration here if needed
           // For now, we'll set a default role
+          const newUser = {
+            firstName: token.name || "",
+            lastName: token.name || "",
+            email: token.email || "",
+            password: null,
+            phoneNumber: null,
+            address: null,
+            role: "user",
+            membershipStatus: "active",
+          };
+          await register(newUser);
           token.role = "user";
           token.membershipStatus = "active";
         }

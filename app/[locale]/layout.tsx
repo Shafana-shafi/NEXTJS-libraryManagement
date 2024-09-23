@@ -3,6 +3,7 @@
 import "../globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/toaster";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 interface Props {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ const RootLayout: React.FC<Props> = ({ children }) => {
           <main>
             {children}
             <Toaster />
+            <SpeedInsights />
           </main>
         </SessionProvider>
       </body>
