@@ -21,13 +21,6 @@ export default async function MeetingsPage() {
           <SideNav />
           <div className="flex-1 overflow-auto p-6 flex justify-center items-center">
             <div className="text-center">
-              <Image
-                src="/no-meetings.svg" // Replace with a real image path if you want to use an illustration
-                alt="No meetings illustration"
-                width={200}
-                height={200}
-                className="mx-auto mb-6"
-              />
               <h1 className="text-2xl font-bold text-rose-800 mb-4">
                 No scheduled meetings found
               </h1>
