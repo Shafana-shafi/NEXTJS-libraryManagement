@@ -57,7 +57,7 @@ export default function ProfessorScheduleClient({
   }, [calendlyUrl, professor.userName, professor.userEmail]);
 
   return (
-    <div className="flex h-screen flex-col bg-rose-50 text-rose-900">
+    <div className="flex h-screen flex justify-center align-middle bg-rose-50 text-rose-900">
       <div className="flex flex-grow overflow-hidden">
         <div className="flex-1 overflow-auto p-6">
           <Card className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">

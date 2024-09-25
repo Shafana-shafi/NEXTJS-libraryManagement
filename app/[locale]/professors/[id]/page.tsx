@@ -32,7 +32,9 @@ export default async function ProfessorSchedulePage({
       <NavBar />
       <div className="flex">
         <SideNav />
-        <ProfessorScheduleClient professor={newProfessor} />
+        <div className="flex items-center justify-center h-full p-4">
+          <ProfessorScheduleClient professor={newProfessor} />
+        </div>
       </div>
     </div>
   );

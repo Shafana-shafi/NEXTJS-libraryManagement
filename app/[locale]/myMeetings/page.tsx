@@ -2,17 +2,18 @@ import { fetchScheduledEvents } from "@/repositories/professor.repository";
 import NavBar from "@/ui/components/navBar";
 import SideNav from "@/ui/components/sidenav";
 import { CreateMeetingButton } from "@/allTables/createMeetingButton";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import JoinMeetingButton from "@/allTables/MeetingButton";
 
-export default async function MeetingsPage({
-  searchParams,
-}: {
-  searchParams?: { email?: string };
-}) {
-  const email = "shifashafana14@gmail.com";
-  const events = await fetchScheduledEvents();
+export default async function MeetingsPage() {
+  const session = await getServerSession(authOptions);
+  const events = await fetchScheduledEvents(session?.user.email || "");
+
+  console.log(events);
 
   if (!events.length) {
-    return <div>No scheduled meetings found for {email}</div>;
+    return <div>No scheduled meetings found</div>;
   }
 
   return (
@@ -23,7 +24,7 @@ export default async function MeetingsPage({
         <div className="flex-1 overflow-auto p-6">
           <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
             <h1 className="text-2xl font-bold mb-4 text-rose-800">
-              Scheduled Meetings for {email}
+              Scheduled Meetings
             </h1>
             <ul className="space-y-4">
               {events.map((event: any) => (
@@ -40,6 +41,9 @@ export default async function MeetingsPage({
                   <p className="text-sm text-rose-600">
                     Invitee: {event.invitees_counter.total} people
                   </p>
+                  <div className="mt-2">
+                    <JoinMeetingButton joinUrl={event.location.join_url} />
+                  </div>
                 </li>
               ))}
             </ul>

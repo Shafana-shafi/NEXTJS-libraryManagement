@@ -56,7 +56,8 @@
         "todaysDue": "Today's Due",
         "profile": "Profile",
         "myRequests": "My Requests",
-        "Professors": "Professors"
+        "Professors": "Professors",
+        "myMeetings": "My Meetngs"
     },
     "AddBookForm": {
         "addNewBook": "Add New Book",

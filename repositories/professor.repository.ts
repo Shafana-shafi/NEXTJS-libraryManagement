@@ -82,7 +82,7 @@ export async function getUserUri() {
     }
 
     const data = await response.json();
-    return data.resource.uri; // This is the user's URI
+    return data.resource.current_organization; // This is the user's URI
   } catch (error) {
     console.error("Error fetching user URI", error);
     throw error;
@@ -90,14 +90,12 @@ export async function getUserUri() {
 }
 
 // Fetch scheduled events for the user
-export async function fetchScheduledEvents() {
+export async function fetchScheduledEvents(email: string) {
   const userUri = await getUserUri(); // Get the logged-in user's URI
-
+  // const email = "shafanashahina57@gmail.com";
   try {
     const response = await fetch(
-      `https://api.calendly.com/scheduled_events?user=${encodeURIComponent(
-        userUri
-      )}`,
+      `https://api.calendly.com/scheduled_events?organization=${userUri}&invitee_email=${email}`,
       {
         method: "GET",
         headers: {

@@ -1,4 +1,3 @@
-// File: app/[locale]/profile/page.tsx
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { redirect } from "next/navigation";
@@ -24,15 +23,17 @@ export default async function ProfilePage({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <div className="flex h-screen flex-col bg-rose-50">
+      <div className="flex flex-col h-screen bg-rose-50">
         <NavBar />
-        <div className="flex">
+        <div className="flex flex-1 overflow-hidden">
           <SideNav />
-          <main>
-            <ProfileForm
-              user={session.user}
-              completeUserInfo={completeUserInfo}
-            />
+          <main className="flex-1 overflow-y-auto">
+            <div className="flex items-center justify-center h-full p-4">
+              <ProfileForm
+                user={session.user}
+                completeUserInfo={completeUserInfo}
+              />
+            </div>
           </main>
         </div>
       </div>
