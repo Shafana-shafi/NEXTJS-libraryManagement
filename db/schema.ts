@@ -6,6 +6,7 @@ import {
   varchar,
   uniqueIndex,
   real,
+  text,
 } from "drizzle-orm/pg-core";
 
 export const books = pgTable(
@@ -92,6 +93,21 @@ export const requests = pgTable(
   (table) => {
     return {
       idIdx: uniqueIndex("requests_id_idx").on(table.id),
+    };
+  }
+);
+export const professors = pgTable(
+  "professors",
+  {
+    id: serial("id").primaryKey(), // Auto-incrementing primary key
+    name: varchar("name", { length: 255 }).notNull(), // Professor's name
+    department: varchar("department", { length: 255 }).notNull(), // Department name
+    bio: text("bio"), // Short bio
+    calendlyLink: varchar("calendly_link", { length: 255 }), // Calendly event link
+  },
+  (table) => {
+    return {
+      idIdx: uniqueIndex("professors_id_idx").on(table.id), // Unique index on ID
     };
   }
 );

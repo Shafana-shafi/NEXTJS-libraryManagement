@@ -15,6 +15,19 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+// Helper function to format the price based on locale and currency
+function formatPriceToLocale(price: number, locale: string) {
+  // Determine currency based on locale, fallback to INR if unknown
+  const currency = locale === "en-US" ? "USD" : "INR";
+
+  // Format price using Intl.NumberFormat
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 2,
+  }).format(price);
+}
+console.log(formatPriceToLocale(150, "en-US"), "formatted");
 interface BookCardProps {
   id: number;
   title: string;
@@ -44,6 +57,9 @@ export default function BookCard({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
+  // Detect the user's locale
+  const locale = Intl.DateTimeFormat().resolvedOptions().locale || "en-IN";
+  console.log(locale, "locale");
   const handleIssueBookRequest = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening the dialog when clicking the button
     setIsRequesting(true);
@@ -91,7 +107,6 @@ export default function BookCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
-        {/* Updated Gradient and Enlarged Text */}
         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/90 to-transparent">
           <h3 className="text-lg font-bold text-white mb-1 line-clamp-2">
             {title}
@@ -105,8 +120,9 @@ export default function BookCard({
               </span>
             </div>
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5" />
-              <span className="text-base font-bold">{price.toFixed(2)}</span>
+              <span className="text-base font-bold">
+                {formatPriceToLocale(price, locale)}
+              </span>
             </div>
           </div>
           <Button
@@ -151,8 +167,9 @@ export default function BookCard({
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <span className="text-xl font-bold">{price.toFixed(2)}</span>
+                  <span className="text-xl font-bold">
+                    {formatPriceToLocale(price, locale)}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <BookOpen className="h-5 w-5 text-blue-600" />

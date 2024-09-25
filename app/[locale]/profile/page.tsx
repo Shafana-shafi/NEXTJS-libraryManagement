@@ -26,9 +26,9 @@ export default async function ProfilePage({
     <NextIntlClientProvider locale={locale} messages={messages}>
       <div className="flex h-screen flex-col bg-rose-50">
         <NavBar />
-        <div className="flex flex-grow">
+        <div className="flex">
           <SideNav />
-          <main className="flex-grow">
+          <main>
             <ProfileForm
               user={session.user}
               completeUserInfo={completeUserInfo}

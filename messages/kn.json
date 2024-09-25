@@ -55,7 +55,8 @@
         "members": "ಸದಸ್ಯರು",
         "todaysDue": "ಇಂದಿನ ಬಾಕಿ",
         "profile": "ಪ್ರೊಫೈಲ್",
-        "myRequests": "ನನ್ನ ವಿನಂತಿಗಳು"
+        "myRequests": "ನನ್ನ ವಿನಂತಿಗಳು",
+        "Professors": "ಪ್ರಕಾಶಕ"
     },
     "AddBookForm": {
         "addNewBook": "ಹೊಸ ಪುಸ್ತಕ ಸೇರಿಸಿ",

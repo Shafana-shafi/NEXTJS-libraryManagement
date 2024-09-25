@@ -1,5 +1,3 @@
-// File: app/[locale]/components/requestsTable.tsx
-
 "use server";
 import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "next-auth/next";
@@ -48,21 +46,44 @@ interface RequestsTableProps {
   ) => Promise<void>;
 }
 
+// Helper function to format the date according to the user's locale
+function formatDateToLocale(dateString: string | null, locale: string) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const validLocale =
+    typeof Intl.DateTimeFormat.supportedLocalesOf === "function" &&
+    Intl.DateTimeFormat.supportedLocalesOf(locale).length > 0
+      ? locale
+      : "en-US";
+
+  return new Intl.DateTimeFormat(validLocale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+}
+
 export default async function RequestsTable({
   requests,
   onAccept,
   onDecline,
   onReturn,
 }: RequestsTableProps) {
+  // Fetching session information
   const session = await getServerSession(authOptions);
   const userRole = session?.user.role;
   const isAdmin = userRole === "admin";
+
+  // Fetching translations
   const t = await getTranslations("RequestsTable");
+
+  // Get the user's current locale
+  const locale = Intl.DateTimeFormat().resolvedOptions().locale || "en-GB";
+  console.log(locale);
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
-        {/* <div className="rounded-lg bg-white shadow-md p-6 border border-rose-200"> */}
         {/* Mobile view for requests */}
         <div className="md:hidden space-y-4">
           {requests.map((request) => (
@@ -88,13 +109,16 @@ export default async function RequestsTable({
                 </Badge>
               </div>
               <p className="text-sm text-rose-800">
-                {t("requestDate")}: {request.requestDate}
+                {t("requestDate")}:{" "}
+                {formatDateToLocale(request.requestDate, locale)}
               </p>
               <p className="text-sm text-rose-800">
-                {t("issuedDate")}: {request.issuedDate}
+                {t("issuedDate")}:{" "}
+                {formatDateToLocale(request.issuedDate, locale)}
               </p>
               <p className="text-sm text-rose-800">
-                {t("returnDate")}: {request.returnDate}
+                {t("returnDate")}:{" "}
+                {formatDateToLocale(request.returnDate, locale)}
               </p>
               {isAdmin && (
                 <div className="mt-2">
@@ -115,6 +139,7 @@ export default async function RequestsTable({
             </div>
           ))}
         </div>
+
         {/* Desktop view for requests */}
         <div className="hidden md:block">
           <Table>
@@ -159,10 +184,10 @@ export default async function RequestsTable({
                     {request.bookTitle}
                   </TableCell>
                   <TableCell className="font-medium text-rose-800">
-                    {request.requestDate}
+                    {formatDateToLocale(request.requestDate, locale)}
                   </TableCell>
                   <TableCell className="font-medium text-rose-800">
-                    {request.issuedDate}
+                    {formatDateToLocale(request.issuedDate, locale)}
                   </TableCell>
                   <TableCell className="font-medium text-rose-800">
                     <Badge
@@ -173,7 +198,7 @@ export default async function RequestsTable({
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium text-rose-800">
-                    {request.returnDate}
+                    {formatDateToLocale(request.returnDate, locale)}
                   </TableCell>
                   {isAdmin && (
                     <TableCell>
@@ -184,12 +209,12 @@ export default async function RequestsTable({
                         status={request.status}
                         onAccept={onAccept}
                         onDecline={onDecline}
+                        onReturn={onReturn}
                         returnDate={
                           request.returnDate
                             ? request.returnDate.toString()
                             : null
                         }
-                        onReturn={onReturn}
                       />
                     </TableCell>
                   )}
@@ -198,6 +223,7 @@ export default async function RequestsTable({
             </TableBody>
           </Table>
         </div>
+
         {/* No requests message */}
         {requests.length === 0 && (
           <p className="text-center text-gray-500 mt-4">
@@ -206,6 +232,5 @@ export default async function RequestsTable({
         )}
       </div>
     </div>
-    // </div>
   );
 }

@@ -111,12 +111,12 @@ export default function ProfileForm({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-screen">
+    <div className="container mx-auto px-4 flex justify-center items-center min-h-screen">
       <Card className="w-full max-w-3xl mx-auto shadow-lg bg-white overflow-hidden">
         <div className="bg-rose-600 h-32"></div>
-        <CardContent className="relative px-6 pb-6">
-          <div className="flex flex-col items-center -mt-16 mb-8">
-            <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white shadow-lg mb-4 mt-4">
+        <CardContent className="relative px-6">
+          <div className="flex flex-col items-center">
+            <div className="w-32 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
               <Image
                 src={user.image || "/placeholder.svg"}
                 alt={user.name || "User"}
