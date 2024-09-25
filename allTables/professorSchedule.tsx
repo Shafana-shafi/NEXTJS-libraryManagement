@@ -31,10 +31,12 @@ export default function ProfessorScheduleClient({
   };
 
   return (
-    <div className="h-screen flex justify-center align-middle bg-rose-50 text-rose-900">
+    <div className="h-screen flex justify-center align-middle bg-rose-50 text-rose-900 overflow-hidden">
+      {/* This makes sure that the entire screen is used and scrolling is hidden */}
       <div className="flex flex-grow overflow-hidden">
-        <div className="flex-1 overflow-auto p-6">
-          <Card className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+        {/* Remove overflow here */}
+        <div className="flex-1 p-6">
+          <Card className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg w-full h-full">
             <h1 className="text-2xl font-bold mb-4 text-rose-800">
               {professor.name}
             </h1>
@@ -46,7 +48,7 @@ export default function ProfessorScheduleClient({
                 url={calendlyUrl}
                 prefill={prefill}
                 styles={{
-                  width: "500px",
+                  width: "600px",
                   height: "630px",
                 }}
               />

@@ -23,16 +23,19 @@ export default async function ProfessorSchedulePage({
   const userName = session?.user.name || "";
   const userEmail = session?.user?.email || "";
   const newProfessor = { ...professor, userName, userEmail };
+
   if (!professor) {
     return <div>Professor not found</div>;
   }
 
   return (
-    <div className="flex h-screen flex-col bg-rose-50">
+    <div className="flex h-screen flex-col bg-rose-50 overflow-hidden">
+      {/* Added overflow-hidden */}
       <NavBar />
-      <div className="flex">
+      <div className="flex overflow-hidden">
+        {/* Ensure no overflow at this level */}
         <SideNav />
-        <div className="flex items-center justify-center h-full p-4">
+        <div className="flex items-center justify-center align-middle h-full w-full">
           <ProfessorScheduleClient professor={newProfessor} />
         </div>
       </div>

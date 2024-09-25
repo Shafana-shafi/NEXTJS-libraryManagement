@@ -14,7 +14,7 @@ export default function JoinMeetingButton({ joinUrl }: JoinMeetingButtonProps) {
   return (
     <Button
       onClick={handleJoinMeeting}
-      className="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-4 rounded"
+      className="bg-rose-800 hover:bg-rose-600 text-white font-bold py-2 px-4 rounded"
     >
       Join Meeting
     </Button>
