@@ -1,10 +1,12 @@
-// global.d.ts
-interface Window {
-  Calendly: {
+declare interface Window {
+  Calendly?: {
     initInlineWidget: (options: {
       url: string;
       parentElement: HTMLElement;
-      prefill?: { name?: string; email?: string };
+      prefill: {
+        name?: string;
+        email?: string;
+      };
     }) => void;
   };
 }
