@@ -31,9 +31,15 @@ export default async function AddBookPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <NavBar />
+      {/* Make NavBar sticky */}
+      <div className="sticky top-0 z-50">
+        <NavBar />
+      </div>
       <div className="flex flex-grow">
-        <SideNav />
+        {/* Make SideNav sticky */}
+        <div className="sticky top-0 h-screen">
+          <SideNav />
+        </div>
         <div className="flex flex-col w-full p-4 justify-center align-middle">
           <AddBookForm translations={translations} />
         </div>

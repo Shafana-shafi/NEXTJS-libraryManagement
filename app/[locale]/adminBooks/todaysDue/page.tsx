@@ -52,9 +52,15 @@ export default async function OverdueRequestsPage({
       messages={messages}
     >
       <div className="flex h-screen flex-col bg-rose-50">
-        <NavBar />
+        {/* Make NavBar sticky */}
+        <div className="sticky top-0 z-50">
+          <NavBar />
+        </div>
         <div className="flex flex-grow">
-          <SideNav />
+          {/* Make SideNav sticky */}
+          <div className="sticky top-0 h-screen">
+            <SideNav />
+          </div>
           <div className="flex flex-col w-full p-8">
             <div className="mb-6 flex items-center justify-center space-x-6">
               <Search placeholder={t("searchOverdueRequests")} />
@@ -80,8 +86,9 @@ export default async function OverdueRequestsPage({
                 </Suspense>
               )}
             </div>
-            <div className="mt-6 flex justify-center">
-              <Pagination totalPages={totalPages} />
+
+            <div className="sticky bottom-0 left-0 right-0 p-4 bg-rose-100 flex justify-center">
+              {totalPages > 0 && <Pagination totalPages={totalPages} />}
             </div>
           </div>
         </div>

@@ -31,10 +31,13 @@ export default async function ProfessorSchedulePage({
   return (
     <div className="flex h-screen flex-col bg-rose-50 overflow-hidden">
       {/* Added overflow-hidden */}
-      <NavBar />
+      <div className="sticky top-0 z-10">
+        <NavBar />
+      </div>
       <div className="flex overflow-hidden">
-        {/* Ensure no overflow at this level */}
-        <SideNav />
+        <div className="sticky top-16 z-10">
+          <SideNav />
+        </div>
         <div className="flex items-center justify-center align-middle h-full w-full">
           <ProfessorScheduleClient professor={newProfessor} />
         </div>

@@ -57,3 +57,92 @@ export async function createMeeting() {
     return { success: false, error: error.message };
   }
 }
+
+export async function cancelMeeting(eventUuid: string) {
+  try {
+    const response = await fetch(
+      `https://api.calendly.com/scheduled_events/${eventUuid}/cancellation`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.CALENDLY_API_TOKEN}`,
+        },
+        body: JSON.stringify({
+          reason: "Cancellation requested by user",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to cancel meeting");
+    }
+
+    // Revalidate the meetings page to reflect the changes
+    revalidatePath("/meetings");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error cancelling meeting:", error);
+    return { success: false, error: "Failed to cancel the meeting" };
+  }
+}
+
+export async function rescheduleMeeting(eventUuid: string, email: string) {
+  try {
+    console.log(eventUuid, "event uuid");
+    console.log(email, "email");
+    const url = `https://api.calendly.com/scheduled_events/${eventUuid}/invitees?invitee_email=${email}`;
+    console.log(url);
+    const response = await fetch(
+      `https://api.calendly.com/scheduled_events/${eventUuid}/invitees?invitee_email=${email}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.CALENDLY_API_TOKEN}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to reschedule meeting");
+    }
+    const responseData = await response.json();
+    console.log(
+      JSON.stringify(responseData.reschedule_url, null, 2),
+      "reschedule response"
+    );
+
+    return {
+      success: true,
+      rescheduleUrl: responseData.collection[0].reschedule_url,
+    };
+  } catch (error) {
+    console.error("Error rescheduling meeting:", error);
+    return { success: false, error: "Failed to reschedule the meeting" };
+  }
+}
+
+export async function reschedule(url: string) {
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.CALENDLY_API_TOKEN}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to reschedule meeting");
+    }
+    const responseData = await response.json();
+    console.log(JSON.stringify(responseData, null, 2), " response");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error rescheduling meeting:", error);
+    return { success: false, error: "Failed to reschedule the meeting" };
+  }
+}

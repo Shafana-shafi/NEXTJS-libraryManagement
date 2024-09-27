@@ -1,4 +1,3 @@
-// repositories/professor.repository.ts
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import chalk from "chalk";
@@ -12,12 +11,23 @@ export interface Professor {
   id?: number;
   name: string;
   department: string;
+  email: string;
   bio?: string;
   calendlyLink?: string;
 }
 
-// ... (keep other functions like createProfessor, updateProfessor, etc.)
+// Function to create a new professor
+export async function createProfessor(professor: Professor) {
+  try {
+    const result = await db.insert(professors).values(professor).execute();
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error creating professor:", error);
+    return { success: false, message: "Error creating professor." };
+  }
+}
 
+// Function to fetch all professors
 export async function fetchAllProfessors() {
   try {
     const result = await db.select().from(professors).execute();
@@ -28,6 +38,7 @@ export async function fetchAllProfessors() {
   }
 }
 
+// Function to fetch event types for a professor
 export async function fetchProfessorEventTypes(
   calendlyLink: string | undefined
 ) {
@@ -51,21 +62,24 @@ export async function fetchProfessorEventTypes(
   }
 }
 
+// Function to fetch a professor by ID
 export async function fetchProfessorById(id: number) {
   try {
     const result = await db
       .select()
       .from(professors)
-      .where(eq(professors.id, id));
+      .where(eq(professors.id, id))
+      .execute();
     return result[0];
   } catch (error) {
-    console.error("Error fetching professors:", error);
+    console.error("Error fetching professor:", error);
     throw error;
   }
 }
 
+// Function to get user URI for Calendly
 const CALENDLY_API_URL = "https://api.calendly.com";
-const CALENDLY_API_TOKEN = process.env.CALENDLY_API_TOKEN; // Store your token securely
+const CALENDLY_API_TOKEN = process.env.CALENDLY_API_TOKEN;
 
 export async function getUserUri() {
   try {
@@ -76,23 +90,23 @@ export async function getUserUri() {
         "Content-Type": "application/json",
       },
     });
-    console.log("Prganizations", response);
+    console.log("Organizations", response);
     if (!response.ok) {
       throw new Error(`Error fetching user info: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data.resource.current_organization; // This is the user's URI
+    return data.resource.current_organization;
   } catch (error) {
     console.error("Error fetching user URI", error);
     throw error;
   }
 }
 
-// Fetch scheduled events for the user
+// Function to fetch scheduled events for the user
 export async function fetchScheduledEvents(email: string) {
-  const userUri = await getUserUri(); // Get the logged-in user's URI
-  // const email = "shafanashahina57@gmail.com";
+  const userUri = await getUserUri();
+
   try {
     const response = await fetch(
       `https://api.calendly.com/scheduled_events?organization=${userUri}&invitee_email=${email}`,
@@ -113,9 +127,39 @@ export async function fetchScheduledEvents(email: string) {
 
     const data = await response.json();
     console.log("----------------------------------------------------:", data);
-    return data.collection; // Return an array of scheduled events
+    return data.collection;
   } catch (error) {
     console.error("Error fetching scheduled events", error);
     throw error;
+  }
+}
+
+// New function to update the Calendly link for a professor
+export async function updateProfessorCalendlyLink(
+  professorId: number,
+  calendlyLink: string
+) {
+  try {
+    console.log("calendly link", calendlyLink);
+    const result = await db
+      .update(professors)
+      .set({ calendlyLink })
+      .where(eq(professors.id, professorId))
+      .execute();
+    console.log("hiii 2");
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: "Professor not found or no update was necessary.",
+      };
+    }
+    console.log("hiii 1");
+    return { success: true, message: "Calendly link updated successfully." };
+  } catch (error) {
+    console.error("Error updating professor's Calendly link:", error);
+    return {
+      success: false,
+      message: "Error updating professor's Calendly link.",
+    };
   }
 }

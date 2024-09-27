@@ -34,6 +34,7 @@ export default async function Page({
   const now = await getNow();
   const timeZone = await getTimeZone();
   const messages = await getMessages();
+
   return (
     <NextIntlClientProvider
       locale={locale}
@@ -42,11 +43,18 @@ export default async function Page({
       messages={messages}
     >
       <div className="flex h-screen flex-col bg-rose-50">
-        <NavBar />
-        <div className="flex flex-grow">
-          <SideNav />
+        {/* Sticky NavBar */}
+        <div className="sticky top-0 z-10">
+          <NavBar />
+        </div>
 
-          <div className="relative flex-grow overflow-hidden flex flex-col">
+        <div className="flex flex-grow overflow-hidden">
+          {/* Sticky SideNav */}
+          <div className="sticky top-16 z-10">
+            <SideNav />
+          </div>
+
+          <div className="relative flex-grow flex flex-col">
             {/* Center the search bar */}
             <div className="flex justify-center z-10 bg-rose-100 pt-6 pb-4 mb-3 gap-3 shadow-md">
               <Search placeholder="Search Books..." />

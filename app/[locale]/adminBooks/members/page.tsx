@@ -25,6 +25,7 @@ export default async function Page({
   const now = await getNow();
   const timeZone = await getTimeZone();
   const messages = await getMessages();
+
   return (
     <NextIntlClientProvider
       locale={locale}
@@ -33,10 +34,16 @@ export default async function Page({
       messages={messages}
     >
       <div className="flex h-screen flex-col bg-rose-50 text-rose-900">
-        <NavBar />
+        {/* Make NavBar sticky */}
+        <div className="sticky top-0 z-50">
+          <NavBar />
+        </div>
 
         <div className="flex flex-grow">
-          <SideNav />
+          {/* Make SideNav sticky */}
+          <div className="sticky top-0 h-screen">
+            <SideNav />
+          </div>
 
           <div className="relative flex flex-col flex-grow bg-rose-50 p-4">
             <div className="flex items-center justify-center gap-4 pt-7 mb-5">
@@ -59,6 +66,7 @@ export default async function Page({
               )}
             </div>
 
+            {/* Pagination at the bottom */}
             <div className="sticky bottom-0 left-0 right-0 p-4 bg-rose-100 flex justify-center">
               {totalPages > 0 && <Pagination totalPages={totalPages} />}
             </div>

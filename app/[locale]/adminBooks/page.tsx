@@ -124,15 +124,24 @@ export default async function Page({
       messages={messages}
     >
       <div className="flex h-screen flex-col bg-rose-50 text-rose-900">
-        <NavBar />
+        {/* Sticky NavBar */}
+        <div className="sticky top-0 z-50">
+          <NavBar />
+        </div>
+
         <div className="flex flex-grow">
-          <SideNav />
+          {/* Sticky SideNav */}
+          <div className="sticky top-0 h-screen">
+            <SideNav />
+          </div>
+
           <div className="relative flex flex-col flex-grow bg-rose-50 p-4">
             <div className="flex items-center justify-center gap-4 mb-3 align-middle">
               <Search placeholder={t("searchBooks")} />
               <GenreDropdown genres={genres} />
-              {userRole === "admin" && <AddButton />}
+              {userRole === "admin" && <AddButton buttonFor="book" />}
             </div>
+
             <div className="flex-grow px-4 overflow-auto">
               {totalPages === 0 ? (
                 <div className="text-center text-rose-500 mt-10">
@@ -154,6 +163,8 @@ export default async function Page({
                 </Suspense>
               )}
             </div>
+
+            {/* Sticky Pagination at the bottom */}
             <div className="sticky bottom-0 left-0 right-0 p-3 bg-rose-100 flex justify-center">
               {totalPages > 0 && <Pagination totalPages={totalPages} />}
             </div>

@@ -1,4 +1,3 @@
-// app/professors/[id]/page.tsx
 "use server";
 
 import { fetchProfessorById } from "@/repositories/professor.repository";
@@ -29,6 +28,7 @@ export default async function ProfessorSchedulePage({
   const userName = session?.user.name || "";
   const userEmail = session?.user?.email || "";
   const newProfessor = { ...professor, userName, userEmail };
+
   if (!professor) {
     return <div>Professor not found</div>; // Handle case where professor is not found
   }
@@ -36,10 +36,18 @@ export default async function ProfessorSchedulePage({
   // Pass professor data to the client component
   return (
     <div className="flex h-screen flex-col bg-rose-50">
-      <NavBar />
-      <div className="flex">
-        <SideNav />
-        <ProfessorScheduleClient professor={newProfessor} />
+      {/* Sticky NavBar */}
+      <div className="sticky top-0 z-10">
+        <NavBar />
+      </div>
+      <div className="flex flex-grow overflow-hidden">
+        {/* Sticky SideNav */}
+        <div className="sticky top-16 z-10">
+          <SideNav />
+        </div>
+        <div className="flex-1 flex items-center justify-center align-middle h-full">
+          <ProfessorScheduleClient professor={newProfessor} />
+        </div>
       </div>
     </div>
   );

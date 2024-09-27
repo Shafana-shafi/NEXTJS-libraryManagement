@@ -45,3 +45,23 @@ export const memberSchema = z.object({
     .min(5, "Address must be at least 5 characters")
     .optional(),
 });
+
+export const professorSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Name cannot contain special characters"),
+  email: z
+    .string()
+    .email("Must be a valid email address")
+    .min(5, "Email must be at least 5 characters"),
+  department: z
+    .string()
+    .min(2, "Department must be at least 2 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Department cannot contain special characters"),
+  bio: z.string().min(5, "Bio must be at least 5 characters").optional(),
+  calendlyLink: z
+    .string()
+    .min(5, "link must be at least 5 characters")
+    .optional(),
+});
