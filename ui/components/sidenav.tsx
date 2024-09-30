@@ -33,13 +33,18 @@ const SideNav = async () => {
       icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
     },
     {
+      name: t("profile"),
+      href: `/profile`,
+      icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
+    },
+    {
       name: t("Professors"),
       href: `/professors`,
       icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
     },
     {
-      name: t("profile"),
-      href: `/profile`,
+      name: t("myMeetings"),
+      href: `/myMeetings`,
       icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
     },
   ];

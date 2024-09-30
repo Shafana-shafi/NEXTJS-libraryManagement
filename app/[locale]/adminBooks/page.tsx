@@ -129,7 +129,7 @@ export default async function Page({
           <NavBar />
         </div>
 
-        <div className="flex flex-grow">
+        <div className="flex flex-grow overflow-hidden">
           {/* Sticky SideNav */}
           <div className="sticky top-0 h-screen">
             <SideNav />
@@ -165,7 +165,7 @@ export default async function Page({
             </div>
 
             {/* Sticky Pagination at the bottom */}
-            <div className="sticky bottom-0 left-0 right-0 p-3 bg-rose-100 flex justify-center">
+            <div className="sticky bottom-0 left-0 right-0 p-1 bg-rose-100 flex justify-center">
               {totalPages > 0 && <Pagination totalPages={totalPages} />}
             </div>
           </div>

@@ -34,8 +34,8 @@ export default async function ProfessorSchedulePage({
       <div className="sticky top-0 z-10">
         <NavBar />
       </div>
-      <div className="flex overflow-hidden">
-        <div className="sticky top-16 z-10">
+      <div className="flex flex-grow overflow-hidden">
+        <div className="sticky z-10">
           <SideNav />
         </div>
         <div className="flex items-center justify-center align-middle h-full w-full">

@@ -94,8 +94,7 @@ export default async function RequestsTable({
               <div className="flex items-center justify-between border-b border-rose-200 pb-2 mb-2">
                 {isAdmin && (
                   <p className="font-medium text-rose-800">
-                    {t("memberName")}: {request.memberFirstName}{" "}
-                    {request.memberLastName}
+                    {t("memberName")}: {request.memberFirstName}
                   </p>
                 )}
                 <p className="font-medium text-rose-700">
@@ -177,7 +176,7 @@ export default async function RequestsTable({
                 <TableRow key={request.id} className="hover:bg-rose-50">
                   {isAdmin && (
                     <TableCell className="font-medium text-rose-800">
-                      {request.memberFirstName} {request.memberLastName}
+                      {request.memberFirstName}
                     </TableCell>
                   )}
                   <TableCell className="font-medium text-rose-800">

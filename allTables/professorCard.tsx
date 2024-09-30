@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { updateProfessorCalendlyLinkAction } from "@/actions/updateCalendlyLinkAction";
 import { fetchSchedulingUrl } from "@/actions/fetchSchedulinUrl";
+import { storeTransactionDetails } from "@/actions/transactionDetails";
 
 interface Professor {
   id: number;
@@ -23,11 +23,19 @@ interface ProfessorCardProps {
   invitations: any[];
 }
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function ProfessorCard({
   professor,
   invitations,
 }: ProfessorCardProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
 
   const getStatusColor = (status: string) => {
@@ -43,9 +51,95 @@ export default function ProfessorCard({
     }
   };
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setRazorpayLoaded(true);
+    document.body.appendChild(script);
+  }, []);
+
+  const handlePayment = async () => {
+    if (!razorpayLoaded) {
+      console.error("Razorpay script not loaded");
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      const response = await fetch("/api/createOrder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: 50000,
+          currency: "INR",
+          receipt: `receipt_${professor.id}`, // Unique receipt ID
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const order = await response.json();
+      console.log(order, "order");
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Shifa'S Library",
+        description: "Test Transaction",
+        order_id: order.id,
+        handler: async function (response: any) {
+          setIsProcessing(true);
+          try {
+            const result = await storeTransactionDetails({
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
+              professorId: professor.id,
+              amount: order.amount,
+              currency: order.currency,
+            });
+            if (result.success) {
+              console.log(result.message);
+              await handleScheduleMeeting();
+            } else {
+              console.error(result.message);
+              setIsProcessing(false);
+              alert(
+                "Error storing transaction details. Please contact support."
+              );
+            }
+          } catch (error) {
+            console.error("Error in payment handler:", error);
+            setIsProcessing(false);
+            alert("An error occurred. Please try again or contact support.");
+          }
+        },
+        prefill: {
+          name: professor.name,
+          email: professor.email,
+        },
+        theme: {
+          color: "#F43F5E",
+        },
+      };
+
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.open();
+    } catch (error) {
+      console.error("Error creating Razorpay order:", error);
+      alert("Error creating order. Please try again.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleScheduleMeeting = async () => {
     if (professor.inviteStatus === "accepted" && !professor.calendlyLink) {
-      setIsUpdating(true);
       const invitation = invitations.find(
         (inv) => inv.email === professor.email
       );
@@ -58,19 +152,22 @@ export default function ProfessorCard({
           );
           if (result.success) {
             router.refresh(); // Refresh the page to show updated data
+            router.push(`/professors/${professor.id}`); // Redirect to professor's page
           } else {
             console.error("Failed to update Calendly link:", result.message);
+            setIsProcessing(false);
+            alert("Failed to update Calendly link. Please try again.");
           }
         } catch (error) {
           console.error("Error updating Calendly link:", error);
-        } finally {
-          setIsUpdating(false);
+          setIsProcessing(false);
+          alert("Error updating Calendly link. Please try again.");
         }
       }
+    } else if (professor.calendlyLink) {
+      // If Calendly link already exists, just redirect
+      router.push(`/professors/${professor.id}`);
     }
-
-    // If calendlyLink exists or after updating, navigate to the professor's page
-    router.push(`/professors/${professor.id}`);
   };
 
   return (
@@ -88,13 +185,19 @@ export default function ProfessorCard({
         <p className="text-sm mb-4 text-rose-700">{professor.bio}</p>
       </div>
       {professor.inviteStatus !== "pending" && (
-        <Button
-          className="w-full bg-rose-600 hover:bg-rose-700 text-white"
-          onClick={handleScheduleMeeting}
-          disabled={isUpdating}
+        <button
+          className="w-full bg-rose-600 hover:bg-rose-700 text-white py-2 rounded disabled:opacity-50"
+          onClick={handlePayment}
+          disabled={isUpdating || !razorpayLoaded || isProcessing}
         >
-          {isUpdating ? "Updating..." : "Schedule Meeting"}
-        </Button>
+          {isProcessing
+            ? "Processing payment and scheduling..."
+            : isUpdating
+            ? "Processing..."
+            : professor.calendlyLink
+            ? "Schedule Meeting"
+            : "Pay and Schedule"}
+        </button>
       )}
     </Card>
   );

@@ -7,6 +7,7 @@ import {
   uniqueIndex,
   real,
   text,
+  timestamp,
 } from "drizzle-orm/pg-core";
 
 export const books = pgTable(
@@ -112,3 +113,14 @@ export const professors = pgTable(
     };
   }
 );
+
+export const payments = pgTable("payments", {
+  id: serial("id").primaryKey(),
+  razorpayPaymentId: varchar("razorpay_payment_id", { length: 255 }).notNull(),
+  razorpayOrderId: varchar("razorpay_order_id", { length: 255 }).notNull(),
+  razorpaySignature: varchar("razorpay_signature", { length: 255 }).notNull(),
+  professorId: integer("professor_id").notNull(),
+  amount: integer("amount").notNull(),
+  currency: varchar("currency", { length: 3 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

@@ -1,11 +1,11 @@
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import chalk from "chalk";
-import { professors } from "@/db/schema";
+import { payments, professors } from "@/db/schema";
 import { eq, like } from "drizzle-orm";
 import axios from "axios";
 
-export const db = drizzle(sql, { schema: { professors } });
+export const db = drizzle(sql, { schema: { professors, payments } });
 
 export interface Professor {
   id?: number;
@@ -161,5 +161,37 @@ export async function updateProfessorCalendlyLink(
       success: false,
       message: "Error updating professor's Calendly link.",
     };
+  }
+}
+
+export interface TransactionDetails {
+  razorpayPaymentId: string;
+  razorpayOrderId: string;
+  razorpaySignature: string;
+  professorId: number;
+  amount: number;
+  currency: string;
+}
+
+// New function to insert transaction details
+export async function insertTransactionDetails(details: TransactionDetails) {
+  try {
+    const result = await db
+      .insert(payments)
+      .values({
+        razorpayPaymentId: details.razorpayPaymentId,
+        razorpayOrderId: details.razorpayOrderId,
+        razorpaySignature: details.razorpaySignature,
+        professorId: details.professorId,
+        amount: details.amount,
+        currency: details.currency,
+        createdAt: new Date(),
+      })
+      .execute();
+
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error inserting transaction details:", error);
+    return { success: false, message: "Error inserting transaction details." };
   }
 }

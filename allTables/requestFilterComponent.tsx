@@ -42,10 +42,8 @@ export function RequestFilterComponent() {
     { label: t("returned"), value: "returned" },
   ];
 
-  const dateRangeOptions: FilterOption[] = [
-    { label: t("today"), value: "today" },
-    { label: t("yesterday"), value: "yesterday" },
-  ];
+  // Removed date range options for "today" and "yesterday"
+  const dateRangeOptions: FilterOption[] = []; // Now it's empty
 
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [requestDate, setRequestDate] = useState<Date | undefined>(undefined);
@@ -124,11 +122,15 @@ export function RequestFilterComponent() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("filterRequests")}</DialogTitle>
+          <DialogTitle className="text-lg font-bold">
+            {t("filterRequests")}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="status">{t("status")}</Label>
+            <Label htmlFor="status" className="text-lg font-bold">
+              {t("status")}
+            </Label>
             <div className="flex flex-wrap gap-2">
               {statusOptions.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
@@ -212,7 +214,7 @@ function DateFilter({
 
   return (
     <div className="grid gap-2">
-      <Label>{label}</Label>
+      <Label className="text-lg font-bold">{label}</Label>
       <RadioGroup
         value={dateRange}
         onValueChange={(value) => handleDateRangeChange(value, setDateRange)}
