@@ -2,8 +2,10 @@ import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import chalk from "chalk";
 import { payments, professors } from "@/db/schema";
-import { eq, like } from "drizzle-orm";
+import { eq, like, and } from "drizzle-orm";
 import axios from "axios";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 export const db = drizzle(sql, { schema: { professors, payments } });
 
@@ -171,9 +173,9 @@ export interface TransactionDetails {
   professorId: number;
   amount: number;
   currency: string;
+  id: number;
 }
 
-// New function to insert transaction details
 export async function insertTransactionDetails(details: TransactionDetails) {
   try {
     const result = await db
@@ -186,6 +188,7 @@ export async function insertTransactionDetails(details: TransactionDetails) {
         amount: details.amount,
         currency: details.currency,
         createdAt: new Date(),
+        memberid: details.id,
       })
       .execute();
 
@@ -193,5 +196,32 @@ export async function insertTransactionDetails(details: TransactionDetails) {
   } catch (error) {
     console.error("Error inserting transaction details:", error);
     return { success: false, message: "Error inserting transaction details." };
+  }
+}
+
+export async function checkPaymentStatus(
+  professorId: number,
+  memberId: number
+): Promise<boolean> {
+  try {
+    console.log(professorId, memberId, "professor id member id");
+    const result = await db
+      .select()
+      .from(payments)
+      .where(
+        and(
+          eq(payments.professorId, professorId),
+          eq(payments.memberid, memberId)
+        )
+      )
+      .limit(1);
+
+    if (result.length > 0) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error checking payment status:", error);
+    return false;
   }
 }

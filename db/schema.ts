@@ -123,4 +123,5 @@ export const payments = pgTable("payments", {
   amount: integer("amount").notNull(),
   currency: varchar("currency", { length: 3 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  memberid: integer("memberid").notNull(),
 });
