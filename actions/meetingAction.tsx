@@ -90,10 +90,7 @@ export async function cancelMeeting(eventUuid: string) {
 
 export async function rescheduleMeeting(eventUuid: string, email: string) {
   try {
-    console.log(eventUuid, "event uuid");
-    console.log(email, "email");
     const url = `https://api.calendly.com/scheduled_events/${eventUuid}/invitees?invitee_email=${email}`;
-    console.log(url);
     const response = await fetch(
       `https://api.calendly.com/scheduled_events/${eventUuid}/invitees?invitee_email=${email}`,
       {
@@ -109,10 +106,6 @@ export async function rescheduleMeeting(eventUuid: string, email: string) {
       throw new Error("Failed to reschedule meeting");
     }
     const responseData = await response.json();
-    console.log(
-      JSON.stringify(responseData.reschedule_url, null, 2),
-      "reschedule response"
-    );
 
     return {
       success: true,

@@ -1,13 +1,15 @@
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql } from "@vercel/postgres";
 import chalk from "chalk";
-import { payments, professors } from "@/db/schema";
-import { eq, like, and } from "drizzle-orm";
+import { payments, professors, scheduledMeetings } from "@/db/schema";
+import { eq, like, and, isNull } from "drizzle-orm";
 import axios from "axios";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
-export const db = drizzle(sql, { schema: { professors, payments } });
+export const db = drizzle(sql, {
+  schema: { professors, payments, scheduledMeetings },
+});
 
 export interface Professor {
   id?: number;
@@ -189,6 +191,7 @@ export async function insertTransactionDetails(details: TransactionDetails) {
         currency: details.currency,
         createdAt: new Date(),
         memberid: details.id,
+        refunded: false,
       })
       .execute();
 
@@ -223,5 +226,125 @@ export async function checkPaymentStatus(
   } catch (error) {
     console.error("Error checking payment status:", error);
     return false;
+  }
+}
+
+export interface ScheduledMeeting {
+  userId: number;
+  professorId: number;
+  meetingDate: Date;
+  status: string;
+  paymentId: string;
+  calendlyEventId: string;
+}
+
+export async function insertScheduledMeeting(meeting: ScheduledMeeting) {
+  try {
+    const result = await db.insert(scheduledMeetings).values(meeting).execute();
+
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error inserting scheduled meeting:", error);
+    return { success: false, message: "Error inserting scheduled meeting." };
+  }
+}
+
+export async function updateMeetingStatus(meetingId: number, status: string) {
+  try {
+    const result = await db
+      .update(scheduledMeetings)
+      .set({ status })
+      .where(eq(scheduledMeetings.id, meetingId))
+      .execute();
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: "Meeting not found or no update was necessary.",
+      };
+    }
+
+    return { success: true, message: "Meeting status updated successfully." };
+  } catch (error) {
+    console.error("Error updating meeting status:", error);
+    return { success: false, message: "Error updating meeting status." };
+  }
+}
+
+export async function getMeetingsByUserId(userId: number) {
+  try {
+    const result = await db
+      .select()
+      .from(scheduledMeetings)
+      .where(eq(scheduledMeetings.userId, userId))
+      .execute();
+
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error fetching meetings for user:", error);
+    return {
+      success: false,
+      message: "Error fetching meetings for user.",
+      data: [],
+    };
+  }
+}
+export async function getRefundablePayments(userId: number) {
+  try {
+    const result = await db
+      .select({
+        id: payments.id,
+        amount: payments.amount,
+        paymentDate: payments.createdAt,
+        professorName: professors.name,
+        paymentid: payments.razorpayPaymentId,
+        refunded: payments.refunded,
+      })
+      .from(payments)
+      .innerJoin(professors, eq(payments.professorId, professors.id))
+      .leftJoin(
+        scheduledMeetings,
+        eq(payments.razorpayPaymentId, scheduledMeetings.paymentId)
+      )
+      // .where(
+      //   and()
+      //   // eq(payments.memberid, userId),
+      //   // isNull(scheduledMeetings.id),
+      //   // eq(payments.refunded, false)
+      // )
+      .execute();
+
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error fetching refundable payments:", error);
+    return {
+      success: false,
+      message: "Error fetching refundable payments.",
+      data: [],
+    };
+  }
+}
+
+export async function initiateRefund(paymentId: string) {
+  try {
+    console.log(paymentId, "paymentId in initiateRefund");
+    const id = paymentId;
+    const result = await db
+      .update(payments)
+      .set({ refunded: true })
+      .where(eq(payments.razorpayPaymentId, id))
+      .execute();
+
+    if (result.rowCount === 0) {
+      return {
+        success: false,
+        message: "Payment not found or already refunded.",
+      };
+    }
+
+    return { success: true, message: "Refund initiated successfully." };
+  } catch (error) {
+    console.error("Error initiating refund:", error);
+    return { success: false, message: "Error initiating refund." };
   }
 }

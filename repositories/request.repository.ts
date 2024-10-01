@@ -627,14 +627,12 @@ export async function fetchPaginatedRequest(query: string): Promise<number> {
       const bookCountResult = await transaction
         .select({ count: count() })
         .from(requests)
+        .leftJoin(books, eq(requests.bookId, books.id)) // Join with books table
         .where(
           or(
-            // ilike(requests.memberId, `%${query}%`),
-            // ilike(requests.bookId, `%${query}%`),
-            // ilike(requests.requestDate, `%${query}%`),
-            // ilike(requests.returnDate ?? "", `%${query}%`),
-            // ilike(requests.issuedDate ?? "", `%${query}%`),
+            ilike(books.title, `%${query}%`), // Search by book title
             ilike(requests.status, `%${query}%`)
+            // You can include more conditions below, but avoid using ilike on non-text columns
           )
         );
 

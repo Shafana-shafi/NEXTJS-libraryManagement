@@ -57,7 +57,8 @@
         "profile": "Profile",
         "myRequests": "My Requests",
         "Professors": "Professors",
-        "myMeetings": "My Meetngs"
+        "myMeetings": "My Meetngs",
+        "Refunds": "Refunds"
     },
     "AddBookForm": {
         "addNewBook": "Add New Book",

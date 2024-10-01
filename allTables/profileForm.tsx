@@ -119,7 +119,7 @@ export default function ProfileForm({
             <div className="w-32 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
               <Image
                 src={user.image || "/placeholder.svg"}
-                alt={user.name || "User"}
+                alt={""}
                 width={128}
                 height={128}
                 objectFit="cover"

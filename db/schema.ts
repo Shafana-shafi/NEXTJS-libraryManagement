@@ -8,6 +8,7 @@ import {
   real,
   text,
   timestamp,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const books = pgTable(
@@ -124,4 +125,28 @@ export const payments = pgTable("payments", {
   currency: varchar("currency", { length: 3 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   memberid: integer("memberid").notNull(),
+  refunded: boolean("refunded").notNull().default(false),
 });
+
+export const scheduledMeetings = pgTable(
+  "scheduled_meetings",
+  {
+    id: serial("id").primaryKey(), // Auto-incrementing primary key
+    userId: integer("user_id")
+      .notNull()
+      .references(() => members.id), // Reference to members table
+    professorId: integer("professor_id")
+      .notNull()
+      .references(() => professors.id), // Reference to professors table
+    meetingDate: timestamp("meeting_date").notNull(), // Meeting date
+    status: varchar("status", { length: 20 }).notNull().default("scheduled"), // Meeting status with default 'scheduled'
+    paymentId: varchar("payment_id", { length: 255 }).notNull(), // Reference to payment ID
+    createdAt: timestamp("created_at").notNull().defaultNow(), // Created at timestamp
+    updatedAt: timestamp("updated_at").notNull().defaultNow(), // Updated at timestamp
+  },
+  (table) => {
+    return {
+      idIdx: uniqueIndex("scheduled_meetings_id_idx").on(table.id), // Unique index on ID
+    };
+  }
+);

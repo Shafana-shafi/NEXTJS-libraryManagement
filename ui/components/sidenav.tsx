@@ -47,6 +47,11 @@ const SideNav = async () => {
       href: `/myMeetings`,
       icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
     },
+    {
+      name: t("Refunds"),
+      href: `/refunds`,
+      icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
+    },
   ];
 
   const userLinks = [
@@ -73,6 +78,11 @@ const SideNav = async () => {
     {
       name: t("myMeetings"),
       href: `/myMeetings`,
+      icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
+    },
+    {
+      name: t("Refunds"),
+      href: `/refunds`,
       icon: <UsersIcon className="w-5 h-5 text-rose-400" />,
     },
   ];

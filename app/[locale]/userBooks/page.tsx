@@ -56,7 +56,7 @@ export default async function Page({
 
           <div className="relative flex-grow flex flex-col">
             {/* Center the search bar */}
-            <div className="flex justify-center z-10 bg-rose-100 pt-6 pb-4 mb-3 gap-3 shadow-md">
+            <div className="flex justify-center z-10 bg-rose-50 pt-4 pb-4 mb-3 gap-3 shadow-md">
               <Search placeholder="Search Books..." />
               <GenreDropdown genres={genres} />
             </div>
@@ -85,7 +85,7 @@ export default async function Page({
             </div>
 
             {/* Sticky pagination at the bottom */}
-            <div className="sticky bottom-0 left-0 right-0 p-4 bg-rose-100 flex justify-center shadow-md">
+            <div className="sticky bottom-0 left-0 right-0 p-1 bg-rose-50 flex justify-center shadow-md">
               {totalPages > 0 && <Pagination totalPages={totalPages} />}
             </div>
           </div>

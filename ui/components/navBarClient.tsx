@@ -4,10 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, User } from "lucide-react";
 
 interface NavBarClientProps {
-  userImage: string;
+  userImage: string | "default";
 }
 
 export default function NavBarClient({ userImage }: NavBarClientProps) {
@@ -15,6 +15,26 @@ export default function NavBarClient({ userImage }: NavBarClientProps) {
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/login" });
+  };
+
+  const renderUserImage = () => {
+    if (userImage === "default") {
+      return (
+        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <User className="w-6 h-6 text-gray-600" />
+        </div>
+      );
+    } else {
+      return (
+        <Image
+          src={userImage}
+          alt="Profile Picture"
+          width={40}
+          height={40}
+          className="rounded-full border-2 border-gray-200"
+        />
+      );
+    }
   };
 
   return (
@@ -61,13 +81,7 @@ export default function NavBarClient({ userImage }: NavBarClientProps) {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center text-rose-800 hover:text-gray-600 focus:outline-none transition duration-150 ease-in-out"
             >
-              <Image
-                src={userImage}
-                alt="Profile Picture"
-                width={40}
-                height={40}
-                className="rounded-full border-2 border-gray-200"
-              />
+              {renderUserImage()}
             </button>
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">

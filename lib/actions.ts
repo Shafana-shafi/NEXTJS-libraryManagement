@@ -16,6 +16,7 @@ import {
   SQLWrapper,
   AnyColumn,
   SQL,
+  ilike,
 } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { PgColumn } from "drizzle-orm/pg-core";
@@ -131,9 +132,9 @@ export async function fetchFilteredBooksForUsers(
       .where(
         and(
           or(
-            like(books.title, `%${query}%`),
-            like(books.isbnNo, `%${query}%`),
-            like(books.publisher, `%${query}%`)
+            ilike(books.title, `%${query}%`),
+            ilike(books.isbnNo, `%${query}%`),
+            ilike(books.publisher, `%${query}%`)
           ),
           genre !== "all" ? eq(books.genre, genre) : undefined
         )
